@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Foundry>
+<VM>
+<VMId type="string">52 89 cc d5 3b 8b df 21-34 51 0d fd e2 2f dd a6</VMId>
+<ClientMetaData>
+<clientMetaDataAttributes/>
+<HistoryEventList/></ClientMetaData>
+<vmxPathName type="string">potatos.vmx</vmxPathName></VM></Foundry>

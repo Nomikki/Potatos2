@@ -1,0 +1,20 @@
+# Disk DescriptorFile
+version=1
+encoding="windows-1252"
+CID=fffffffe
+parentCID=ffffffff
+createType="twoGbMaxExtentSparse"
+
+# Extent description
+RW 6291456 SPARSE "potatos-s001.vmdk"
+
+# The Disk Data Base 
+#DDB
+
+ddb.adapterType = "lsilogic"
+ddb.geometry.cylinders = "391"
+ddb.geometry.heads = "255"
+ddb.geometry.sectors = "63"
+ddb.longContentID = "814cae54acfa4dd474d9ad27fffffffe"
+ddb.uuid = "60 00 C2 9c c6 c5 53 4a-41 e2 ce f3 63 af 7a 4c"
+ddb.virtualHWVersion = "18"

@@ -1,0 +1,21 @@
+2021-11-11T13:06:35.007Z In(05) host-11016 Log for VMware Workstation pid=8404 version=16.2.1 build=build-18811642 option=Release
+2021-11-11T13:06:35.007Z In(05) host-11016 The host is 64-bit.
+2021-11-11T13:06:35.007Z In(05) host-11016 Host codepage=windows-1252 encoding=windows-1252
+2021-11-11T13:06:35.007Z In(05) host-11016 Host is Windows 8 Enterprise, 64-bit (Build 19042)
+2021-11-11T13:06:35.007Z In(05) host-11016 Host offset from UTC is -02:00.
+2021-11-11T13:06:35.003Z In(05) host-11016 DictionaryLoad: Cannot open file "C:\Users\kimon\AppData\Roaming\VMware\config.ini": The system cannot find the file specified.
+2021-11-11T13:06:35.003Z In(05) host-11016 [msg.dictionary.load.openFailed] Cannot open file "C:\Users\kimon\AppData\Roaming\VMware\config.ini": The system cannot find the file specified.
+2021-11-11T13:06:35.003Z In(05) host-11016 PREF Optional preferences file not found at C:\Users\kimon\AppData\Roaming\VMware\config.ini. Using default values.
+2021-11-11T13:06:35.003Z In(05) host-11016 UUID: SMBIOS UUID is reported as 'bc fc 9a eb 24 68 1e 8c-a9 b2 2c f0 5d 72 03 45'.
+2021-11-11T13:06:35.009Z In(05) host-11016 Started, process id = 8404
+2021-11-11T13:06:35.009Z In(05) host-11016          pipe = \\.\pipe\vmware.vprint.7180.41.0
+2021-11-11T13:06:35.009Z In(05) host-11016          mutex = Global\vmware.vprint-s.7180.18467.1
+2021-11-11T13:06:35.009Z In(05) host-11016 Path for TPClnVM.dll = 'E:\Program Files (x86)\VMware\VMware Player\TPClnVM.dll'
+2021-11-11T13:06:35.039Z In(05) host-11016 Loaded TPClnVM.dll as E:\Program Files (x86)\VMware\VMware Player\TPClnVM.dll
+2021-11-11T13:06:35.039Z In(05) host-11016 Got entry/stop functions
+2021-11-11T13:06:35.039Z In(05) host-11016 Calling TP 'entry' function
+2021-11-11T13:06:35.257Z In(05) host-11016 Waiting for mutex "Global\vmware.vprint-s.7180.18467.1" ...
+2021-11-11T13:06:55.694Z In(05) host-11016 Mutex signalled
+2021-11-11T13:06:55.694Z In(05) host-11016 Calling TP 'stop' function
+2021-11-11T13:06:55.694Z In(05) host-11016 Cleaned up OK
+2021-11-11T13:06:55.694Z In(05) host-11016 Exit
