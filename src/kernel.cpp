@@ -2,7 +2,8 @@
 #include "common/stdint.h"
 #include "common/stdio.h"
 #include "common/hardware/vga.h"
-#include "memory/gdt.h"
+#include "memory/gdt.hpp"
+#include "common/communication/idt.hpp"
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -19,6 +20,9 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
   vga_init();
   GlobalDescriptorTable gdt;
   gdt.init();
+  InterruptManager idt(&gdt);
+
+  idt.Activate();
 
   
   printf("Size of memory: %i Mb\n", sizeOfMemory / 1024 / 1024);

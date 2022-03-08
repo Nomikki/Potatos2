@@ -1,4 +1,4 @@
-#include "memory/gdt.h"
+#include "memory/gdt.hpp"
 #include "common/stdio.h"
 
 GlobalDescriptorTable::GlobalDescriptorTable()
@@ -59,4 +59,14 @@ void GlobalDescriptorTable::init()
   gdt_flush();
 
   printf("gdt ok\n\n");
+}
+
+uint16_t GlobalDescriptorTable::CodeSegmentSelector()
+{
+  return 0x08;
+}
+
+uint16_t GlobalDescriptorTable::DataSegmentSelector()
+{
+    return 0x10;
 }

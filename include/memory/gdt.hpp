@@ -1,3 +1,6 @@
+#ifndef _GDT_H
+#define _GDT_H
+
 #include "common/stdint.h"
 
 // Each define here is for a specific flag in the descriptor.
@@ -64,4 +67,9 @@ public:
   void init();
   uint64_t createDescriptor(uint32_t base, uint32_t limit, uint16_t flag);
   //void flush();
+
+  uint16_t CodeSegmentSelector();
+  uint16_t DataSegmentSelector();
 };
+
+#endif 
