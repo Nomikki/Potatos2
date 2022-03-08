@@ -1,7 +1,7 @@
 .set IRQ_BASE, 0x20
 
 .section .text
-.extern _ZN16InterruptManager15handleInterruptEhj
+.extern _ZN16InterruptManager15HandleInterruptEhj
 
 .global _ZN16InterruptManager22IgnoreInterruptRequestEv
 
@@ -32,7 +32,7 @@ int_bottom:
 
   pushl %esp
   push (interruptnumber)
-  call _ZN16InterruptManager15handleInterruptEhj
+  call _ZN16InterruptManager15HandleInterruptEhj
   # addl $5, %esp
   movl %eax, %esp
 

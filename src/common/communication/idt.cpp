@@ -17,6 +17,8 @@
 
 InterruptManager::GateDescriptor InterruptManager::interruptDecriptorTable[256];
 
+InterruptManager *InterruptManager::ActiveInterruptManager = 0;
+
 void InterruptManager::SetInterruptDescriptorTableEntry(
     uint8_t interruptNumber,
     uint16_t gdt_codeSegmentSelectorOffset,
@@ -52,8 +54,6 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
   SetInterruptDescriptorTableEntry(0x20, CodeSegment, &HandleInterruptRequest0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
 
-  
-
   //before we load IDS, we must communicate with PICs
   //and tell to not ignore signals anymore (with command 0x11)
   //and remap irq (Add 32 or 0x20)
@@ -66,17 +66,16 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
 
   //tell to master pic that you are the master
   //and tell to slave that you are the slave
-  picMasterData.Write(0x04); 
-  picSlaveData.Write(0x02);  
+  picMasterData.Write(0x04);
+  picSlaveData.Write(0x02);
 
-  picMasterData.Write(0x01); 
-  picSlaveData.Write(0x01);  
+  picMasterData.Write(0x01);
+  picSlaveData.Write(0x01);
 
-  picMasterData.Write(0x00); 
-  picSlaveData.Write(0x08);  
+  picMasterData.Write(0x00);
+  picSlaveData.Write(0x08);
 
-
-  //and finally, load idt 
+  //and finally, load idt
   interruptDescriptorTablePointer idt;
   idt.size = 256 * sizeof(GateDescriptor) - 1;
   idt.base = (uint32_t)interruptDecriptorTable;
@@ -91,12 +90,50 @@ InterruptManager::~InterruptManager()
 
 void InterruptManager::Activate()
 {
+  if (ActiveInterruptManager != 0)
+    ActiveInterruptManager->Deactivate();
+
+  ActiveInterruptManager = this;
   __asm__ volatile("sti");
 }
 
-uint32_t InterruptManager::handleInterrupt(uint8_t interruptNumber, uint32_t esp)
+void InterruptManager::Deactivate()
 {
-  printf("INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
-  
+  if (ActiveInterruptManager == this)
+  {
+    ActiveInterruptManager = 0;
+    __asm__ volatile("cli");
+  }
+
+  ActiveInterruptManager = this;
+  __asm__ volatile("sti");
+}
+
+uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp)
+{
+  if (ActiveInterruptManager != 0)
+    return ActiveInterruptManager->DoHandleInterrupt(interruptNumber, esp);
+  return esp;
+}
+
+uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp)
+{
+
+  //if its not timer interrupts, print value
+  if (interruptNumber != 0x20)
+    printf("INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+
+  if (0x20 <= interruptNumber && interruptNumber < 0x30)
+  {
+
+    //we only have to answer to hardware interrupts
+    //we are good with that interrupt, so send command to pics, that we are ready to take more
+    ActiveInterruptManager->picMasterCommand.Write(0x20);
+    if (0x28 <= interruptNumber)
+      ActiveInterruptManager->picSlaveCommand.Write(0x20);
+  }
+  else
+  {
+  }
   return esp;
 }
