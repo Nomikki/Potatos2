@@ -24,7 +24,7 @@ void vga_init()
   vCursor.y = 0;
 
   
-  uint16_t color = vga_entry_color(VGA_COLOR_LIGHT_MAGENTA, VGA_COLOR_BROWN);
+  uint16_t color = vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK);
 
   for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
   {
