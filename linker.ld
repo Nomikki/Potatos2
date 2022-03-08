@@ -15,16 +15,16 @@ SECTIONS
     *(.multiboot.text)
   }
 
-  . = 0xC0100000;
+  /*. = 0xC0100000;*/
 
-  .text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000) 
+  .text ALIGN (4K) : AT (ADDR (.text) ) 
   {
     *(.multiboot)
     *(.text*)
     *(.rodata)
   }
 
-  .data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+  .data ALIGN (4K) : AT (ADDR (.data) )
   {
     start_ctors = .;
     KEEP(*( .init_array ));
@@ -34,7 +34,7 @@ SECTIONS
     *(.data)
   }
 
-  .bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+  .bss ALIGN (4K) : AT (ADDR (.bss) )
   {
     *(COMMON)
 		*(.bss)
@@ -42,7 +42,7 @@ SECTIONS
   }
 
   /DISCARD/ : { *(.fini_array*) *(.comment) }
-  /*end = .; _end = .; __end = .;*/
+
   _kernel_end = .;
 
 }

@@ -4,7 +4,8 @@ ASPARAMS	= --32
 LDPARAMS = -melf_i386
 
 objects = 	obj/loader.o \
-						obj/kernel.o 
+						obj/common/stdio.o \
+						obj/kernel.o \
 
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)
