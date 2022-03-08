@@ -4,6 +4,7 @@ ASPARAMS	= --32
 LDPARAMS = -melf_i386
 
 objects = 	obj/loader.o \
+						obj/common/communication/ports.o \
 						obj/memory/gdt_stub.o \
 						obj/memory/gdt.o \
 						obj/common/hardware/vga.o \
