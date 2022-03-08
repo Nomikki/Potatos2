@@ -6,8 +6,6 @@
 #include "common/communication/idt.hpp"
 #include "common/drivers/driver.hpp"
 
-class MouseDriver : public InterruptHandler, public Driver
-{
 #define MOUSE_IRQ 0x2c
 #define DATA_PORT 0x60
 #define COMMAND_PORT 0x64
@@ -23,6 +21,21 @@ class MouseDriver : public InterruptHandler, public Driver
 #define ENABLE_PACKED_STREAMING 0xF4
 #define DISABLE_PACKED_STREAMING 0xF5
 
+class MouseEventHandler
+{
+public:
+  MouseEventHandler();
+  ~MouseEventHandler();
+
+  virtual void OnMouseDown(uint8_t button);
+  virtual void OnMouseUp(uint8_t button);
+  virtual void OnMouseMove(int x, int y);
+  virtual void OnActivate();
+};
+
+class MouseDriver : public InterruptHandler, public Driver
+{
+
   Port8Bit dataPort;
   Port8Bit commandPort;
 
@@ -31,12 +44,13 @@ class MouseDriver : public InterruptHandler, public Driver
   uint8_t buttons;
 
   void WaitACK();
+  MouseEventHandler *eventHandler;
 
 public:
-  MouseDriver(InterruptManager *manager);
+  MouseDriver(InterruptManager *manager, MouseEventHandler *eventHandler);
   ~MouseDriver();
   virtual uint32_t HandleInterrupt(uint32_t esp);
-  
+
   virtual void Activate();
 };
 

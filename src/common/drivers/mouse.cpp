@@ -1,11 +1,32 @@
 #include "common/drivers/mouse.hpp"
 #include "common/stdio.h"
 
-MouseDriver::MouseDriver(InterruptManager *manager)
+MouseEventHandler::MouseEventHandler()
+{
+}
+
+void MouseEventHandler::OnActivate()
+{
+}
+
+void MouseEventHandler::OnMouseDown(uint8_t button)
+{
+}
+
+void MouseEventHandler::OnMouseUp(uint8_t button)
+{
+}
+
+void MouseEventHandler::OnMouseMove(int32_t x, int32_t y)
+{
+}
+
+MouseDriver::MouseDriver(InterruptManager *manager, MouseEventHandler *eventHandler)
     : InterruptHandler(MOUSE_IRQ, manager), //which interrupt number?
       dataPort(DATA_PORT),
       commandPort(COMMAND_PORT)
 {
+  this->eventHandler = eventHandler;
 }
 
 MouseDriver::~MouseDriver()
@@ -17,6 +38,9 @@ void MouseDriver::Activate()
   printf("Install mouse... ");
   offset = 0;
   buttons = 0;
+
+  if (eventHandler != 0)
+    eventHandler->OnActivate();
 
   commandPort.Write(ENABLE_AUXILIARY_DEVICE);
   WaitACK();
@@ -43,9 +67,26 @@ void MouseDriver::WaitACK()
   }
 }
 
+/*
+  Byte 1
+   bit
+    7: Y overflow #not useful
+    6: X opverflow #not useful
+    5: Y sign bit #if set, do OR 0bFFFFFF00 for fast speed
+    4: X Sign bit #if set, do OR 0bFFFFFF00 for fast speed
+    3: Always 1
+    2: Middle Button
+    1: Right Button
+    0: Left Button
+  Byte 2
+    X movement
+  Byte 3
+    Y movement
+
+*/
 uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 {
-    printf(".");
+  
 
   uint8_t status = commandPort.Read();
   if (!(status & 0x20)) //if 6th bit isn't 1, return
@@ -53,16 +94,16 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 
   buffer[offset] = dataPort.Read();
 
-  /*
-  if (handler == 0)
+  
+  if (eventHandler == 0)
     return esp;
-    */
+    
 
   offset = (offset + 1) % 3;
 
   if (offset == 0)
   {
-  
+
     bool xsign = false;
     bool ysign = false;
 
@@ -96,7 +137,10 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 
       my = -my;
 
-      //handler->OnMouseMove(mx * 0.1, my * 0.1);
+      mx /= 2;
+      my /= 2;
+
+      eventHandler->OnMouseMove(mx, my);
     }
 
     for (uint8_t i = 0; i < 3; i++)
@@ -105,11 +149,11 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
       {
         if (buttons & (0x1 << i))
         {
-          //handler->OnMouseUp(i + 1);
+          eventHandler->OnMouseUp(i + 1);
         }
         else
         {
-          //handler->OnMouseDown(i + 1);
+          eventHandler->OnMouseDown(i + 1);
         }
       }
     }

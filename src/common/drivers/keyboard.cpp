@@ -1,12 +1,30 @@
 #include "common/drivers/keyboard.hpp"
 #include "common/stdio.h"
 
-KeyboardDriver::KeyboardDriver(InterruptManager *manager)
+  KeyboardEventHandler::KeyboardEventHandler()
+  {
+
+  }
+
+  KeyboardEventHandler::~KeyboardEventHandler()
+  {
+  }
+
+  void KeyboardEventHandler::OnKeyDown(char key)
+  {
+  }
+
+  void KeyboardEventHandler::OnKeyUp(char key)
+  {
+  }
+
+
+KeyboardDriver::KeyboardDriver(InterruptManager *manager, KeyboardEventHandler *eventHandler)
     : InterruptHandler(0x21, manager), //which interrupt number?
       dataPort(0x60),
       commandPort(0x64)
 {
-  
+  this->eventHandler = eventHandler;
 }
 
 KeyboardDriver::~KeyboardDriver()
@@ -32,15 +50,19 @@ void KeyboardDriver::Activate() {
 void KeyboardDriver::HandleKey(uint8_t key, bool pressedOrReleased)
 {
   if (pressedOrReleased)
-    printf("%c", key);
-
-    keys[key] = pressedOrReleased;
+    eventHandler->OnKeyDown(key);
+  else 
+    eventHandler->OnKeyUp(key);
 }
 
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 {
   //if there is keystroke we want to fetch it
   uint8_t key = dataPort.Read();
+
+  if (eventHandler == 0)
+    return esp;
+
   static bool shift = false;
   bool pressedOrReleased = key < 0x80;
 
