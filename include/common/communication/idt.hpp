@@ -72,6 +72,8 @@ public:
   static void IgnoreInterruptRequest();
   static void HandleInterruptRequest0x00(); //timer
   static void HandleInterruptRequest0x01(); //keyboard
+  static void HandleInterruptRequest0x0C(); //mouse
+  
 };
 
 #endif

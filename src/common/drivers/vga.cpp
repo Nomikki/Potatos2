@@ -1,4 +1,4 @@
-#include "common/hardware/vga.h"
+#include "common/drivers/vga.h"
 
 static uint16_t *videoAddr = (uint16_t *)0xB8000;
 static uint16_t videoAddrIndex = 0;

@@ -1,5 +1,5 @@
 #include "common/stdio.h"
-#include "common/hardware/vga.h"
+#include "common/drivers/vga.h"
 #include <stdarg.h>
 #include <limits.h>
 #include "common/string.h"

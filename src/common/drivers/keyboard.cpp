@@ -1,4 +1,4 @@
-#include "common/hardware/keyboard.hpp"
+#include "common/drivers/keyboard.hpp"
 #include "common/stdio.h"
 
 KeyboardDriver::KeyboardDriver(InterruptManager *manager)
@@ -7,6 +7,14 @@ KeyboardDriver::KeyboardDriver(InterruptManager *manager)
       commandPort(0x64)
 {
   
+}
+
+KeyboardDriver::~KeyboardDriver()
+{
+}
+
+void KeyboardDriver::Activate() {
+  printf("Install keyboard... ");
   //wait until ready
   while (commandPort.Read() & 0x1)
     dataPort.Read();
@@ -18,10 +26,7 @@ KeyboardDriver::KeyboardDriver(InterruptManager *manager)
   dataPort.Write(status);
 
   dataPort.Write(0xF4); //finally activate keyboard
-}
-
-KeyboardDriver::~KeyboardDriver()
-{
+  printf("ok\n");
 }
 
 void KeyboardDriver::HandleKey(uint8_t key, bool pressedOrReleased)
@@ -45,11 +50,11 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
     {
       case 0x01: HandleKey(0, pressedOrReleased); break; //esc
       
-      case 0x29: HandleKey(shift ? '½' : '§', pressedOrReleased); break;
+      case 0x29: HandleKey('?', pressedOrReleased); break;
       case 0x02: HandleKey(shift ? '!' : '1', pressedOrReleased); break;
       case 0x03: HandleKey(shift ? '\"' : '2', pressedOrReleased); break;
       case 0x04: HandleKey(shift ? '#' : '3', pressedOrReleased); break;
-      case 0x05: HandleKey(shift ? '¤' : '4', pressedOrReleased); break;
+      case 0x05: HandleKey(shift ? '?' : '4', pressedOrReleased); break;
       case 0x06: HandleKey(shift ? '%' : '5', pressedOrReleased); break;
       case 0x07: HandleKey(shift ? '&' : '6', pressedOrReleased); break;
       case 0x08: HandleKey(shift ? '/' : '7', pressedOrReleased); break;
@@ -57,7 +62,7 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
       case 0x0A: HandleKey(shift ? ')' : '9', pressedOrReleased); break;
       case 0x0B: HandleKey(shift ? '=' : '0', pressedOrReleased); break;
       case 0x0C: HandleKey(shift ? '?' : '+', pressedOrReleased); break;
-      case 0x0D: HandleKey(shift ? '?' : '?´', pressedOrReleased); break;
+      case 0x0D: HandleKey('?', pressedOrReleased); break;
       case 0x0E: HandleKey(0, pressedOrReleased); break; //backspace
 
 

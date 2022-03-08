@@ -1,11 +1,12 @@
 
 #include "common/stdint.h"
 #include "common/stdio.h"
-#include "common/hardware/vga.h"
+#include "common/drivers/vga.h"
 #include "memory/gdt.hpp"
 #include "common/communication/idt.hpp"
-#include "common/hardware/keyboard.hpp"
-
+#include "common/drivers/driver.hpp"
+#include "common/drivers/keyboard.hpp"
+#include "common/drivers/mouse.hpp"
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -23,15 +24,26 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
   GlobalDescriptorTable gdt;
   gdt.init();
   InterruptManager idt(&gdt);
-  KeyboardDriver keyboard(&idt);
-
-  idt.Activate();
-
   
   printf("Size of memory: %i Mb\n", sizeOfMemory / 1024 / 1024);
   printf("Size of stack: %i Kb\n", stackSize / 1024);
   printf("Start of stack: 0x%X\n", stackStart);
   
+  
+  DriverManager drvManager;
+  
+  KeyboardDriver keyboard(&idt);
+  MouseDriver mouse(&idt);
+
+  drvManager.AddDriver(&keyboard);
+  drvManager.AddDriver(&mouse);
+  
+  drvManager.ActivateAll();
+
+  idt.Activate();
+
+  
+ 
 
   while (1)
     ;

@@ -75,6 +75,8 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
   */
   SetInterruptDescriptorTableEntry(0x20, CodeSegment, &HandleInterruptRequest0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x2C, CodeSegment, &HandleInterruptRequest0x0C, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+
 
   //before we load IDS, we must communicate with PICs
   //and tell to not ignore signals anymore (with command 0x11)
@@ -95,7 +97,7 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
   picSlaveData.Write(0x01);
 
   picMasterData.Write(0x00);
-  picSlaveData.Write(0x08);
+  picSlaveData.Write(0x00);
 
   //and finally, load idt
   interruptDescriptorTablePointer idt;
@@ -141,25 +143,27 @@ uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
 
-  if (handlers[interruptNumber])
+  if (handlers[interruptNumber] != 0)
   {
     esp = handlers[interruptNumber]->HandleInterrupt(esp);
-  } else 
-  //if its not timer interrupts, print value
-  if (interruptNumber != 0x20)
+  } else if (interruptNumber != 0x20) {
+    //if its not timer interrupts, print value
     printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+  }
 
+  if (interruptNumber == 0x20)
+  {
 
-  if (0x20 <= interruptNumber && interruptNumber < 0x30)
+  }
+
+  if (0x20 <= interruptNumber && interruptNumber < 0x20 + 16)
   {
     //we only have to answer to hardware interrupts
     //we are good with that interrupt, so send command to pics, that we are ready to take more
     ActiveInterruptManager->picMasterCommand.Write(0x20);
-    if (0x28 <= interruptNumber)
+    if (0x20 + 8 <= interruptNumber)
       ActiveInterruptManager->picSlaveCommand.Write(0x20);
   }
-  else
-  {
-  }
+ 
   return esp;
 }

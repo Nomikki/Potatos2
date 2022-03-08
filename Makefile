@@ -4,13 +4,15 @@ ASPARAMS	= --32
 LDPARAMS = -melf_i386
 
 objects = 	obj/loader.o \
-						obj/common/hardware/keyboard.o \
+						obj/common/drivers/driver.o \
+						obj/common/drivers/keyboard.o \
+						obj/common/drivers/mouse.o \
 						obj/common/communication/ports.o \
 						obj/common/communication/idt_stubs.o \
 						obj/common/communication/idt.o \
 						obj/memory/gdt_stub.o \
 						obj/memory/gdt.o \
-						obj/common/hardware/vga.o \
+						obj/common/drivers/vga.o \
 						obj/common/string.o \
 						obj/common/stdio.o \
 						obj/kernel.o \
