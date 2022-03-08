@@ -30,7 +30,6 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
   printf("Start of stack: 0x%X\n", stackStart);
   
 
-
   while (1)
     ;
 }

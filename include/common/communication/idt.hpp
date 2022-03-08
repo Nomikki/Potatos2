@@ -5,11 +5,29 @@
 #include "common/communication/ports.hpp"
 #include "memory/gdt.hpp"
 
-class InterruptManager
+class InterruptManager;
+//base class
+class InterruptHandler
 {
 protected:
+  uint8_t interruptNumber;
+  InterruptManager *interruptManager;
 
-  static InterruptManager* ActiveInterruptManager;
+  InterruptHandler(uint8_t interruptNumber, InterruptManager *interruptManager);
+  ~InterruptHandler();
+
+public:
+  uint32_t HandleInterrupt(uint32_t esp);
+};
+//-----------------------
+
+class InterruptManager
+{
+  friend class InterruptHandler;
+  InterruptHandler *handlers[256];
+
+protected:
+  static InterruptManager *ActiveInterruptManager;
 
   struct GateDescriptor
   {
@@ -35,10 +53,10 @@ protected:
       uint8_t DescriptorPrivilegeLevel,
       uint8_t DescriptorType);
 
-    Port8BitSlow picMasterCommand;
-    Port8BitSlow picMasterData;
-    Port8BitSlow picSlaveCommand;
-    Port8BitSlow picSlaveData;
+  Port8BitSlow picMasterCommand;
+  Port8BitSlow picMasterData;
+  Port8BitSlow picSlaveCommand;
+  Port8BitSlow picSlaveData;
 
 public:
   InterruptManager(GlobalDescriptorTable *gdt);
@@ -54,8 +72,6 @@ public:
   static void IgnoreInterruptRequest();
   static void HandleInterruptRequest0x00(); //timer
   static void HandleInterruptRequest0x01(); //keyboard
-
-
 };
 
 #endif

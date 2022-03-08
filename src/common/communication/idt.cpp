@@ -15,6 +15,26 @@
 #include "common/communication/idt.hpp"
 #include "common/stdio.h"
 
+InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager *interruptManager)
+{
+  this->interruptNumber = interruptNumber;
+  this->interruptManager = interruptManager;
+  //and put it itself to interrupt manager
+  interruptManager->handlers[interruptNumber] = this;
+}
+
+InterruptHandler::~InterruptHandler()
+{
+  if (interruptManager->handlers[interruptNumber] == this)
+    interruptManager[interruptNumber] = 0;
+}
+
+uint32_t InterruptHandler::HandleInterrupt(uint32_t esp)
+{
+  return esp;
+}
+
+//--------------------------
 InterruptManager::GateDescriptor InterruptManager::interruptDecriptorTable[256];
 
 InterruptManager *InterruptManager::ActiveInterruptManager = 0;
@@ -46,8 +66,10 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
   const uint8_t IDT_INTERRUPT_GATE = 0x0E;
 
   for (uint16_t i = 0; i < 256; i++)
+  {
     SetInterruptDescriptorTableEntry(i, CodeSegment, &IgnoreInterruptRequest, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
-
+    handlers[i] = 0;
+  }
   /*
     If we get interrupt 0x20, we jump to handleInterruptRequest0x00
   */
@@ -119,13 +141,17 @@ uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
 
+  if (handlers[interruptNumber])
+  {
+    esp = handlers[interruptNumber]->HandleInterrupt(esp);
+  } else 
   //if its not timer interrupts, print value
   if (interruptNumber != 0x20)
-    printf("INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+    printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+
 
   if (0x20 <= interruptNumber && interruptNumber < 0x30)
   {
-
     //we only have to answer to hardware interrupts
     //we are good with that interrupt, so send command to pics, that we are ready to take more
     ActiveInterruptManager->picMasterCommand.Write(0x20);
