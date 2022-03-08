@@ -3,8 +3,11 @@
 
 #include "stdint.h"
 
-extern int printf(const char *format, ...);
-extern int putchar(int character);
-extern int puts(const char *str);
+#define NULL 0
+#define EOF -1
+
+extern int32_t printf(const char *format, ...);
+extern int32_t putchar(int32_t character);
+extern int32_t puts(const char *str);
 
 #endif

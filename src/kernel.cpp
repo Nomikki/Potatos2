@@ -15,8 +15,19 @@ extern "C" void call_constructors()
 extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic, uint32_t stackSize, uint32_t stackStart)
 {
   //printf("ruaah %s", "s");
-  puts("Papin peruna");
+  for (int i = 0; i < 48; i++)
+  {
+    printf("i: %i -> %X\n", i, i);
+  }
 
+  for (int i = 0; i < 80 * 12 + 4; i++)
+  {
+    printf("%c", 'a' + (i % 26));
+  }
+
+  printf("Viela viimeinen");
+
+  //__asm__("hlt");
   while (1)
     ;
 }
