@@ -4,6 +4,8 @@
 #include "common/hardware/vga.h"
 #include "memory/gdt.hpp"
 #include "common/communication/idt.hpp"
+#include "common/hardware/keyboard.hpp"
+
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -21,6 +23,7 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
   GlobalDescriptorTable gdt;
   gdt.init();
   InterruptManager idt(&gdt);
+  KeyboardDriver keyboard(&idt);
 
   idt.Activate();
 

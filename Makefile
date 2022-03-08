@@ -4,6 +4,7 @@ ASPARAMS	= --32
 LDPARAMS = -melf_i386
 
 objects = 	obj/loader.o \
+						obj/common/hardware/keyboard.o \
 						obj/common/communication/ports.o \
 						obj/common/communication/idt_stubs.o \
 						obj/common/communication/idt.o \
