@@ -43,7 +43,25 @@
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(3) | SEG_DATA_RDWR
 
-extern uint64_t gdt_create_descriptor(uint32_t base, uint32_t limit, uint16_t flag);
-extern void gdt_setup();
-
 extern void gdt_flush();
+
+struct GlobalDescriptorTableSructure
+{
+  uint32_t address;
+  uint16_t size;
+} __attribute__((packed));
+
+static GlobalDescriptorTableSructure gdtPacket;
+static uint64_t gdtEntries[5];
+
+class GlobalDescriptorTable
+{
+
+public:
+  GlobalDescriptorTable();
+  ~GlobalDescriptorTable();
+
+  void init();
+  uint64_t createDescriptor(uint32_t base, uint32_t limit, uint16_t flag);
+  //void flush();
+};

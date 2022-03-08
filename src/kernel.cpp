@@ -17,7 +17,8 @@ extern "C" void call_constructors()
 extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic, uint32_t stackSize, uint32_t stackStart)
 {
   vga_init();
-  gdt_setup();
+  GlobalDescriptorTable gdt;
+  gdt.init();
 
   
   printf("Size of memory: %i Mb\n", sizeOfMemory / 1024 / 1024);
