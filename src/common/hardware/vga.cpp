@@ -11,6 +11,27 @@ struct vgaCursor
 
 vgaCursor vCursor;
 
+
+static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) 
+{
+	return fg | bg << 4;
+}
+ 
+
+void vga_init()
+{
+  vCursor.x = 0;
+  vCursor.y = 0;
+
+  
+  uint16_t color = vga_entry_color(VGA_COLOR_LIGHT_MAGENTA, VGA_COLOR_BROWN);
+
+  for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
+  {
+    videoAddr[i] = ' ' | color << 8;
+  }
+}
+
 void vga_getCursor(int &x, int &y)
 {
   x = vCursor.x;
@@ -25,12 +46,12 @@ void vga_setCursor(int x, int y)
 
 void vga_scrollLine()
 {
-  for (int y = 0; y < 24; y++)
+  for (int y = 0; y < VGA_HEIGHT-1; y++)
   {
-    for (int x = 0; x < 80; x++)
+    for (int x = 0; x < VGA_WIDTH; x++)
     {
-      videoAddr[80 * y + x] = videoAddr[80 * (y + 1) + x];
-      videoAddr[80 * (y + 1) + x] = 0;
+      videoAddr[VGA_WIDTH * y + x] = videoAddr[VGA_WIDTH * (y + 1) + x];
+      videoAddr[VGA_WIDTH * (y + 1) + x] = 0;
     }
   }
 }
@@ -38,9 +59,9 @@ void vga_scrollLine()
 void vga_putEntry(int character, uint16_t color)
 {
 
-  if (vCursor.y > 24)
+  if (vCursor.y > VGA_HEIGHT-1)
   {
-    vCursor.y = 24;
+    vCursor.y = VGA_HEIGHT-1;
     vCursor.x = 0;
 
     vga_scrollLine();
@@ -53,11 +74,11 @@ void vga_putEntry(int character, uint16_t color)
     return;
   }
 
-  videoAddrIndex = 80 * vCursor.y + vCursor.x;
+  videoAddrIndex = VGA_WIDTH * vCursor.y + vCursor.x;
   videoAddr[videoAddrIndex] = character | color;
   vCursor.x++;
 
-  if (vCursor.x >= 80)
+  if (vCursor.x >= VGA_WIDTH)
   {
     vCursor.x = 0;
     vCursor.y++;

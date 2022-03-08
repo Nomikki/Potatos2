@@ -23,6 +23,10 @@ enum vga_color
 	VGA_COLOR_WHITE = 15,
 };
 
+const int VGA_WIDTH = 80;
+const int VGA_HEIGHT = 25;
+
+extern void vga_init();
 extern void vga_getCursor(int &x, int &y);
 extern void vga_setCursor(int x, int y);
 extern void vga_putEntry(int character, uint16_t color);
