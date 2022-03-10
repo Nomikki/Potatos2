@@ -14,7 +14,7 @@ public:
 class DriverManager
 {
 private:
-  Driver *drivers[255];
+  Driver *mDrivers[255];
   int numDrivers;
 
 public:
@@ -22,7 +22,6 @@ public:
   ~DriverManager();
   void AddDriver(Driver *driver);
   void ActivateAll();
-  
 };
 
 #endif

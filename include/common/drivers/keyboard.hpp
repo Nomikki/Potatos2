@@ -6,8 +6,9 @@
 #include "common/communication/idt.hpp"
 #include "common/drivers/driver.hpp"
 
-class KeyboardEventHandler {
-  public:
+class KeyboardEventHandler
+{
+public:
   KeyboardEventHandler();
   ~KeyboardEventHandler();
 
@@ -19,15 +20,12 @@ class KeyboardDriver : public InterruptHandler, public Driver
 {
   Port8Bit dataPort;
   Port8Bit commandPort;
-
   bool keys[128];
-  void HandleKey(uint8_t key, bool pressedOrReleased);
-
   KeyboardEventHandler *eventHandler;
 
-public:
-  
+  void HandleKey(uint8_t key, bool pressedOrReleased);
 
+public:
   KeyboardDriver(InterruptManager *manager, KeyboardEventHandler *eventHandler);
   ~KeyboardDriver();
   virtual uint32_t HandleInterrupt(uint32_t esp);

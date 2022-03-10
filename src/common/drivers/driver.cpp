@@ -1,26 +1,25 @@
 #include "common/drivers/driver.hpp"
 
-Driver::Driver() {
-
+Driver::Driver()
+{
 }
 
-Driver::~Driver() {
-
+Driver::~Driver()
+{
 }
 
-void Driver::Activate() {
-
+void Driver::Activate()
+{
 }
 
-int Driver::Reset() {
+int Driver::Reset()
+{
   return 0;
 }
 
-void Driver::Deactivate() {
-
+void Driver::Deactivate()
+{
 }
-
-
 
 DriverManager::DriverManager()
 {
@@ -30,16 +29,17 @@ DriverManager::DriverManager()
 DriverManager::~DriverManager()
 {
 }
-    
+
 void DriverManager::AddDriver(Driver *driver)
 {
-  drivers[numDrivers] = driver;
+  mDrivers[numDrivers] = driver;
   numDrivers++;
 }
 
-
-void DriverManager::ActivateAll() {
-  for (int i = 0; i < numDrivers; i++) {
-    drivers[i]->Activate();
+void DriverManager::ActivateAll()
+{
+  for (int i = 0; i < numDrivers; i++)
+  {
+    mDrivers[i]->Activate();
   }
 }

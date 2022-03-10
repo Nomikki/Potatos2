@@ -35,7 +35,6 @@ public:
 
 class MouseDriver : public InterruptHandler, public Driver
 {
-
   Port8Bit dataPort;
   Port8Bit commandPort;
 
@@ -50,7 +49,6 @@ public:
   MouseDriver(InterruptManager *manager, MouseEventHandler *eventHandler);
   ~MouseDriver();
   virtual uint32_t HandleInterrupt(uint32_t esp);
-
   virtual void Activate();
 };
 
