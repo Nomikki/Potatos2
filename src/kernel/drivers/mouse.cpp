@@ -1,6 +1,8 @@
 #include <drivers/mouse.hpp>
 #include <stdio.h>
 
+using namespace os::driver::Mouse;
+
 MouseEventHandler::MouseEventHandler()
 {
 }
@@ -21,8 +23,8 @@ void MouseEventHandler::OnMouseMove(int32_t x, int32_t y)
 {
 }
 
-MouseDriver::MouseDriver(InterruptManager *manager, MouseEventHandler *eventHandler)
-    : InterruptHandler(MOUSE_IRQ, manager), //which interrupt number?
+MouseDriver::MouseDriver(os::communication::InterruptManager *manager, MouseEventHandler *eventHandler)
+    : InterruptHandler(MOUSE_IRQ, manager), // which interrupt number?
       dataPort(DATA_PORT),
       commandPort(COMMAND_PORT)
 {
@@ -86,18 +88,15 @@ void MouseDriver::WaitACK()
 */
 uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 {
-  
 
   uint8_t status = commandPort.Read();
-  if (!(status & 0x20)) //if 6th bit isn't 1, return
+  if (!(status & 0x20)) // if 6th bit isn't 1, return
     return esp;
 
   buffer[offset] = dataPort.Read();
 
-  
   if (eventHandler == 0)
     return esp;
-    
 
   offset = (offset + 1) % 3;
 

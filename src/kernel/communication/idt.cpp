@@ -1,7 +1,8 @@
 /*
-  Kun tietokoneen käynnistää, pic ei päästä ulkopuolisesta raudasta mitään signaalia cpu:lle läpi.
-  Eli hiiri, näppäimistö jne. Picille pitää erikseen kertoa että voi päästää läpi.
-  Mutta ensin pitää asettaa IDT kuntoon ja vasta sen jälkeen annetaan lupa käyttää sitä.
+  Kun tietokoneen käynnistää, pic ei päästä ulkopuolisesta raudasta mitään signaalia
+  cpu:lle läpi. Eli hiiri, näppäimistö jne. Picille pitää erikseen kertoa että voi päästää läpi.
+  Mutta ensin pitää asettaa IDT kuntoon ja vasta sen jälkeen annetaan lupa
+  käyttää sitä.
 
   IDT sisältää 256 entryä.
   keskeytysluku on 8 bittinen kokonaisluku
@@ -10,16 +11,47 @@
   segmentti
   pääsyoikeudet (0 - 3)
 
+  //på finska
+  IDT-himmeli:                                                                
+  - Konstruktorissa asennetaan tarvittavat keskeytykset ja mihin funktioon ne 
+    johtaa (esim HandleInterruptRequest0x00)
+  - Kun keskeytys laukaistaan, hypätään idt_stub.s:n puolella oleviin
+    HandleInterrupt-makroihin joissa asetetaan pinoon nykyiset rekisteriarvot
+    ja tehdään loikka InterruptManager::HandleInterrupt-metodiin
+  - kyseisessä metodissa hypätään lopulta DoHandleInterruptiin (pieni ruma
+    kikka, koska meillä on staattisia funktioita) jolla päästään viimein
+    käsittelemään keskeytykset 
+  
+  - Jos meillä on handleri kyseisen keskeytysnumeron kohdalla, hypätään siihen
+    (näin voidaan bindaa eri laitteille keskeytykset)
+    - Muussa tapauksessa jos keskeytys on kaikkea muuta kuin 32 (pit timer),
+      huudellaan hanskaamattomasta keskeytyksestä
+  
+  - Jos keskeytysnumero on alta väliltä 32...48 (0x20...0x30), kyse on
+    remapatusta IRQ:sta. Kerrotaan siihen suuntaan että ollaan valmiita
+    jatkamaan.
+  - Lopuksi aina palautetaan ESP, jotta tiedetään missä meidän pino menee
+    (jotta voidaan palauttaa oikeat rekisteriarvot)
+
+  - Ajurinäkökulmasta jos halutaan käyttää keskeytyksiä:
+    Ajurissa on oltava  InterruptHandler (perittynä) ja InterruptManager.
+    Handlerille kerromme mikä keskeytysluku ja mikä InterruptManager.
+  - Handleri lisää itsensä sisältä käsin InterruptManageriin. Ja koska handler
+    on peritty, voidaan sen virtuaalista HandleInterrupt-funktiota kutsua, 
+    jolloinka ajurissa oleva vastaava kutsu kutsutaan.
+
 
 */
 #include <communication/idt.hpp>
 #include <stdio.h>
 
+using namespace os::communication;
+
 InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager *interruptManager)
 {
   this->interruptNumber = interruptNumber;
   this->interruptManager = interruptManager;
-  //and put it itself to interrupt manager
+  // and put it itself to interrupt manager
   interruptManager->handlers[interruptNumber] = this;
 }
 
@@ -55,7 +87,7 @@ void InterruptManager::SetInterruptDescriptorTableEntry(
   interruptDecriptorTable[interruptNumber].reserved = 0;
 }
 
-InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
+InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt)
     : picMasterCommand(0x20),
       picMasterData(0x21),
       picSlaveCommand(0xA0),
@@ -77,19 +109,18 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
   SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x2C, CodeSegment, &HandleInterruptRequest0x0C, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
 
-
-  //before we load IDS, we must communicate with PICs
-  //and tell to not ignore signals anymore (with command 0x11)
-  //and remap irq (Add 32 or 0x20)
-  //both pics can make 8 interrupts
+  // before we load IDS, we must communicate with PICs
+  // and tell to not ignore signals anymore (with command 0x11)
+  // and remap irq (Add 32 or 0x20)
+  // both pics can make 8 interrupts
   picMasterCommand.Write(0x11);
   picSlaveCommand.Write(0x11);
 
-  picMasterData.Write(0x20); //0x20...0x27
-  picSlaveData.Write(0x28);  //0x28...0x30
+  picMasterData.Write(0x20); // 0x20...0x27
+  picSlaveData.Write(0x28);  // 0x28...0x30
 
-  //tell to master pic that you are the master
-  //and tell to slave that you are the slave
+  // tell to master pic that you are the master
+  // and tell to slave that you are the slave
   picMasterData.Write(0x04);
   picSlaveData.Write(0x02);
 
@@ -99,7 +130,7 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
   picMasterData.Write(0x00);
   picSlaveData.Write(0x00);
 
-  //and finally, load idt
+  // and finally, load idt
   interruptDescriptorTablePointer idt;
   idt.size = 256 * sizeof(GateDescriptor) - 1;
   idt.base = (uint32_t)interruptDecriptorTable;
@@ -146,24 +177,25 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t e
   if (handlers[interruptNumber] != 0)
   {
     esp = handlers[interruptNumber]->HandleInterrupt(esp);
-  } else if (interruptNumber != 0x20) {
-    //if its not timer interrupts, print value
+  }
+  else if (interruptNumber != 0x20)
+  {
+    // if its not timer interrupts, print value
     printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
   }
 
   if (interruptNumber == 0x20)
   {
-
   }
 
-  if (0x20 <= interruptNumber && interruptNumber < 0x20 + 16)
+  if (interruptNumber >= 0x20 && interruptNumber < 0x20 + 16)
   {
-    //we only have to answer to hardware interrupts
-    //we are good with that interrupt, so send command to pics, that we are ready to take more
+    // we only have to answer to hardware interrupts
+    // we are good with that interrupt, so send command to pics, that we are ready to take more
     ActiveInterruptManager->picMasterCommand.Write(0x20);
     if (0x20 + 8 <= interruptNumber)
       ActiveInterruptManager->picSlaveCommand.Write(0x20);
   }
- 
+
   return esp;
 }

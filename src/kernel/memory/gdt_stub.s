@@ -1,7 +1,7 @@
 .section .text
-.global _Z9gdt_flushv
+.global _ZN2os6memory9gdt_flushEv
 
-_Z9gdt_flushv:
+_ZN2os6memory9gdt_flushEv:
   jmp $0x08, $reload_CS
 
 reload_CS:

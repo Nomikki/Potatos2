@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+namespace os::memory
+{
+
 // Each define here is for a specific flag in the descriptor.
 // Refer to the intel documentation for a description of what each one does.
 #define SEG_DESCTYPE(x) ((x) << 0x04)    // Descriptor type (0 for system, 1 for code/data)
@@ -46,30 +49,32 @@
                          SEG_LONG(0) | SEG_SIZE(1) | SEG_GRAN(1) | \
                          SEG_PRIV(3) | SEG_DATA_RDWR
 
-extern void gdt_flush();
+  extern void gdt_flush();
 
-struct GlobalDescriptorTableSructure
-{
-  uint32_t address;
-  uint16_t size;
-} __attribute__((packed));
+  struct GlobalDescriptorTableSructure
+  {
+    uint32_t address;
+    uint16_t size;
+  } __attribute__((packed));
 
-static GlobalDescriptorTableSructure gdtPacket;
-static uint64_t gdtEntries[5];
+  static GlobalDescriptorTableSructure gdtPacket;
+  static uint64_t gdtEntries[5];
 
-class GlobalDescriptorTable
-{
+  class GlobalDescriptorTable
+  {
 
-public:
-  GlobalDescriptorTable();
-  ~GlobalDescriptorTable();
+  public:
+    GlobalDescriptorTable();
+    ~GlobalDescriptorTable();
 
-  void init();
-  uint64_t createDescriptor(uint32_t base, uint32_t limit, uint16_t flag);
-  //void flush();
+    void init();
+    uint64_t createDescriptor(uint32_t base, uint32_t limit, uint16_t flag);
+    // void flush();
 
-  uint16_t CodeSegmentSelector();
-  uint16_t DataSegmentSelector();
+    uint16_t CodeSegmentSelector();
+    uint16_t DataSegmentSelector();
+  };
+
 };
 
-#endif 
+#endif

@@ -1,13 +1,16 @@
 #include <stdio.h>
-#include <drivers/vga.h>
+#include <drivers/vga.hpp>
 #include <stdarg.h>
 #include <limits.h>
 #include <string.h>
 
+
 int putchar(int character)
 {
-  uint16_t color = (uint16_t)VGA_COLOR_LIGHT_GREY << 8;
-  vga_putEntry(character, color);
+  
+  uint16_t color = (uint16_t)os::driver::VGA::VGA_COLOR_LIGHT_GREY << 8;
+  os::driver::VGA::vga_putEntry(character, color);
+  
   return 0;
 }
 
@@ -57,7 +60,7 @@ int int2char(int32_t iNumber)
     iNumber /= 10;
   }
 
-  //buffer[iNumbersCount-1] = 0;
+  // buffer[iNumbersCount-1] = 0;
   print(buffer, iNumbersCount);
   return iNumbersCount;
 }
@@ -118,7 +121,7 @@ int printBinary(int num)
 
 int printBigBinary(int num)
 {
-  //1337 -> 10100111001
+  // 1337 -> 10100111001
   char binText[32] = {0};
   for (int i = 0; i < 32; i++)
   {
@@ -178,7 +181,7 @@ int32_t printf(const char *__restrict format, ...)
       size_t amount = 1;
       if (maxrem < amount)
       {
-        //todo, set errno to overflow.
+        // todo, set errno to overflow.
         return -1;
       }
       if (!print(format, amount))
@@ -190,7 +193,7 @@ int32_t printf(const char *__restrict format, ...)
 
     const char *format_begun_at = format++;
 
-    //put single character
+    // put single character
     if (*format == 'c')
     {
       format++;
@@ -203,7 +206,7 @@ int32_t printf(const char *__restrict format, ...)
         return -1;
       written++;
     }
-    //put string
+    // put string
     else if (*format == 's')
     {
       format++;
@@ -217,7 +220,7 @@ int32_t printf(const char *__restrict format, ...)
         return -1;
       written += len;
     }
-    //put integer
+    // put integer
     else if (*format == 'i')
     {
       format++;
@@ -258,7 +261,7 @@ int32_t printf(const char *__restrict format, ...)
 
       written += len;
     }
-    //put hexadecimals
+    // put hexadecimals
     else if (*format == 'x')
     {
       format++;

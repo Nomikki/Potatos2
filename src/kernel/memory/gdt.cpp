@@ -1,6 +1,8 @@
 #include <memory/gdt.hpp>
 #include <stdio.h>
 
+using namespace os::memory;
+
 GlobalDescriptorTable::GlobalDescriptorTable()
 {
 }
@@ -68,5 +70,5 @@ uint16_t GlobalDescriptorTable::CodeSegmentSelector()
 
 uint16_t GlobalDescriptorTable::DataSegmentSelector()
 {
-    return 0x10;
+  return 0x10;
 }

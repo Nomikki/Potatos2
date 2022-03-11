@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <drivers/vga.h>
+#include <drivers/vga.hpp>
 #include <memory/gdt.hpp>
 #include <communication/idt.hpp>
 #include <drivers/driver.hpp>
@@ -17,7 +17,7 @@ extern "C" void call_constructors()
     (*i)();
 }
 
-class printfKeyboardEventHandler : public KeyboardEventHandler
+class printfKeyboardEventHandler : public os::driver::Keyboard::KeyboardEventHandler
 {
 public:
   void OnKeyDown(char key)
@@ -30,7 +30,7 @@ public:
   }
 };
 
-class MouseToConsole : public MouseEventHandler
+class MouseToConsole : public os::driver::Mouse::MouseEventHandler
 {
   int x, y;
   uint16_t *const VideoMemory = (uint16_t *)0xB8000;
@@ -61,20 +61,20 @@ public:
 
 extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic, uint32_t stackSize, uint32_t stackStart)
 {
-  vga_init();
-  GlobalDescriptorTable gdt;
+  os::driver::VGA::vga_init();
+  os::memory::GlobalDescriptorTable gdt;
   gdt.init();
-  InterruptManager idt(&gdt);
+  os::communication::InterruptManager idt(&gdt);
 
   printf("Size of memory: %i Mb\n", sizeOfMemory / 1024 / 1024);
   printf("Size of stack: %i Kb\n", stackSize / 1024);
   printf("Start of stack: 0x%X\n", stackStart);
 
-  DriverManager drvManager;
+  os::driver::DriverManager drvManager;
   printfKeyboardEventHandler kbHandler;
   MouseToConsole mouseHandler;
-  KeyboardDriver keyboard(&idt, &kbHandler);
-  MouseDriver mouse(&idt, &mouseHandler);
+  os::driver::Keyboard::KeyboardDriver keyboard(&idt, &kbHandler);
+  os::driver::Mouse::MouseDriver mouse(&idt, &mouseHandler);
 
   drvManager.AddDriver(&keyboard);
   drvManager.AddDriver(&mouse);

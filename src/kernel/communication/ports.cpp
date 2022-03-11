@@ -1,5 +1,7 @@
 #include <communication/ports.hpp>
 
+using namespace os::communication;
+
 Port::Port(uint16_t portnumber)
 {
   this->portnumber = portnumber;
@@ -9,7 +11,7 @@ Port::~Port()
 {
 }
 
-//8 bit
+// 8 bit
 Port8Bit::Port8Bit(uint16_t portnumber) : Port(portnumber)
 {
 }
@@ -33,8 +35,8 @@ uint8_t Port8Bit::Read()
   return result;
 }
 
-//8 bit Slow
-//8 bit
+// 8 bit Slow
+// 8 bit
 Port8BitSlow::Port8BitSlow(uint16_t portnumber) : Port8Bit(portnumber)
 {
 }
@@ -50,8 +52,7 @@ void Port8BitSlow::Write(uint8_t data)
                    : "a"(data), "Nd"(portnumber));
 }
 
-
-//16 bit
+// 16 bit
 Port16Bit::Port16Bit(uint16_t portnumber) : Port(portnumber)
 {
 }
@@ -75,7 +76,7 @@ uint16_t Port16Bit::Read()
   return result;
 }
 
-//32 bit
+// 32 bit
 Port32Bit::Port32Bit(uint16_t portnumber) : Port(portnumber)
 {
 }

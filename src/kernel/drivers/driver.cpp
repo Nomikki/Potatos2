@@ -1,5 +1,7 @@
 #include <drivers/driver.hpp>
 
+using namespace os::driver;
+
 Driver::Driver()
 {
 }
