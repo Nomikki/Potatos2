@@ -73,7 +73,7 @@ void MouseDriver::WaitACK()
   Byte 1
    bit
     7: Y overflow #not useful
-    6: X opverflow #not useful
+    6: X overflow #not useful
     5: Y sign bit #if set, do OR 0bFFFFFF00 for fast speed
     4: X Sign bit #if set, do OR 0bFFFFFF00 for fast speed
     3: Always 1
