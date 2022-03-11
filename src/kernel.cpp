@@ -17,6 +17,7 @@ extern "C" void call_constructors()
     (*i)();
 }
 
+// testing
 class printfKeyboardEventHandler : public os::driver::Keyboard::KeyboardEventHandler
 {
 public:
@@ -30,6 +31,7 @@ public:
   }
 };
 
+// testing
 class MouseToConsole : public os::driver::Mouse::MouseEventHandler
 {
   int x, y;
