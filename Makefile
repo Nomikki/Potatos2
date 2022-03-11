@@ -34,12 +34,12 @@ install: kernel.elf
 	mkdir -p iso
 	mkdir -p iso/boot
 	mkdir -p iso/boot/grub
-	mkdir -p testbuild
+	mkdir -p release
 	cp image/kernel.elf iso/boot/kernel.elf
 	cp grub.cfg iso/boot/grub/grub.cfg
 	grub-mkrescue -o os.iso iso
 	rm -rf iso
-	cp os.iso testbuild/test_os.iso 
+	cp os.iso release/test_os.iso 
 
 clean:
 	rm -rf obj image/kernel.elf os.iso
