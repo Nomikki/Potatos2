@@ -1,9 +1,9 @@
 #ifndef _IDT_HPP
 #define _IDT_HPP
 
-#include "common/stdint.h"
-#include "common/communication/ports.hpp"
-#include "memory/gdt.hpp"
+#include <stdint.h>
+#include <communication/ports.hpp>
+#include <memory/gdt.hpp>
 
 class InterruptManager;
 //base class

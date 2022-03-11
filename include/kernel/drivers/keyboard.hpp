@@ -1,10 +1,10 @@
 #ifndef _KEYBOARD_HPP
 #define _KEYBOARD_HPP
 
-#include "common/stdint.h"
-#include "common/communication/ports.hpp"
-#include "common/communication/idt.hpp"
-#include "common/drivers/driver.hpp"
+#include <stdint.h>
+#include <communication/ports.hpp>
+#include <communication/idt.hpp>
+#include <drivers/driver.hpp>
 
 class KeyboardEventHandler
 {
@@ -20,10 +20,10 @@ class KeyboardDriver : public InterruptHandler, public Driver
 {
   Port8Bit dataPort;
   Port8Bit commandPort;
-  bool keys[128];
+  bool keycodes[128];
   KeyboardEventHandler *eventHandler;
 
-  void HandleKey(uint8_t key, bool pressedOrReleased);
+  void HandleKey(uint8_t key, bool pressed);
 
 public:
   KeyboardDriver(InterruptManager *manager, KeyboardEventHandler *eventHandler);

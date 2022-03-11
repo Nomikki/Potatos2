@@ -1,5 +1,5 @@
-#include "common/drivers/keyboard.hpp"
-#include "common/stdio.h"
+#include <drivers/keyboard.hpp>
+#include <stdio.h>
 
   KeyboardEventHandler::KeyboardEventHandler()
   {

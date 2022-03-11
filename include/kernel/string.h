@@ -1,7 +1,7 @@
 #ifndef _STRING_H
 #define _STRING_H
 
-#include "common/stdint.h"
+#include <stdint.h>
 
 extern size_t strlen(const char *str);
 

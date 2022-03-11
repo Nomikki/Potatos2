@@ -1,5 +1,5 @@
-#include "common/drivers/mouse.hpp"
-#include "common/stdio.h"
+#include <drivers/mouse.hpp>
+#include <stdio.h>
 
 MouseEventHandler::MouseEventHandler()
 {

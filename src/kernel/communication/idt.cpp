@@ -12,8 +12,8 @@
 
 
 */
-#include "common/communication/idt.hpp"
-#include "common/stdio.h"
+#include <communication/idt.hpp>
+#include <stdio.h>
 
 InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager *interruptManager)
 {

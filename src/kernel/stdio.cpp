@@ -1,8 +1,8 @@
-#include "common/stdio.h"
-#include "common/drivers/vga.h"
+#include <stdio.h>
+#include <drivers/vga.h>
 #include <stdarg.h>
 #include <limits.h>
-#include "common/string.h"
+#include <string.h>
 
 int putchar(int character)
 {

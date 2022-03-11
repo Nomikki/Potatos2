@@ -1,10 +1,10 @@
 #ifndef _MOUSE_HPP
 #define _MOUSE_HPP
 
-#include "common/stdint.h"
-#include "common/communication/ports.hpp"
-#include "common/communication/idt.hpp"
-#include "common/drivers/driver.hpp"
+#include <stdint.h>
+#include <communication/ports.hpp>
+#include <communication/idt.hpp>
+#include <drivers/driver.hpp>
 
 #define MOUSE_IRQ 0x2c
 #define DATA_PORT 0x60

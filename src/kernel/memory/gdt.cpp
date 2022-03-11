@@ -1,5 +1,5 @@
-#include "memory/gdt.hpp"
-#include "common/stdio.h"
+#include <memory/gdt.hpp>
+#include <stdio.h>
 
 GlobalDescriptorTable::GlobalDescriptorTable()
 {

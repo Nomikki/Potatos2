@@ -1,7 +1,7 @@
 #ifndef _GDT_H
 #define _GDT_H
 
-#include "common/stdint.h"
+#include <stdint.h>
 
 // Each define here is for a specific flag in the descriptor.
 // Refer to the intel documentation for a description of what each one does.

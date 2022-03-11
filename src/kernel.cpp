@@ -1,12 +1,11 @@
-
-#include "common/stdint.h"
-#include "common/stdio.h"
-#include "common/drivers/vga.h"
-#include "memory/gdt.hpp"
-#include "common/communication/idt.hpp"
-#include "common/drivers/driver.hpp"
-#include "common/drivers/keyboard.hpp"
-#include "common/drivers/mouse.hpp"
+#include <stdint.h>
+#include <stdio.h>
+#include <drivers/vga.h>
+#include <memory/gdt.hpp>
+#include <communication/idt.hpp>
+#include <drivers/driver.hpp>
+#include <drivers/keyboard.hpp>
+#include <drivers/mouse.hpp>
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;

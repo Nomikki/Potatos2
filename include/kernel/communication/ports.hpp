@@ -1,7 +1,7 @@
 #ifndef _PORTS_HPP
 #define _PORTS_HPP
 
-#include "common/stdint.h"
+#include <stdint.h>
 
 class Port
 {
