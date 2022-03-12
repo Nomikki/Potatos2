@@ -6,6 +6,7 @@
 #include <drivers/driver.hpp>
 #include <drivers/keyboard.hpp>
 #include <drivers/mouse.hpp>
+#include <communication/pci.hpp>
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -84,6 +85,9 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
   drvManager.ActivateAll();
 
   idt.Activate();
+
+  os::communication::PCI pci;
+  pci.SelectDrivers(&drvManager);
 
   while (1)
     ;
