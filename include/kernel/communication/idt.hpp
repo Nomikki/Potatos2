@@ -1,5 +1,5 @@
-#ifndef _IDT_HPP
-#define _IDT_HPP
+#ifndef __IDT_H__
+#define __IDT_H__
 
 #include <stdint.h>
 #include <communication/ports.hpp>
@@ -8,7 +8,7 @@
 namespace os::communication
 {
 
-  class InterruptManager;
+    class InterruptManager;
   // base class
   class InterruptHandler
   {
@@ -80,4 +80,4 @@ namespace os::communication
 
 };
 
-#endif
+#endif // __IDT_H__

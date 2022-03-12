@@ -1,5 +1,5 @@
-#ifndef _DRIVER_HPP
-#define _DRIVER_HPP
+#ifndef __DRIVER_H__
+#define __DRIVER_H__
 
 namespace os::driver
 {
@@ -44,4 +44,4 @@ namespace os::driver
 
 };
 
-#endif
+#endif // __DRIVER_H__

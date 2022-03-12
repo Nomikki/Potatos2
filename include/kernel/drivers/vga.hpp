@@ -1,5 +1,5 @@
-#ifndef _VGA_H
-#define _VGA_H
+#ifndef __VGA_H__
+#define __VGA_H__
 
 #include <stdint.h>
 
@@ -36,4 +36,4 @@ namespace os::driver::VGA
 
 };
 
-#endif
+#endif // __VGA_H__

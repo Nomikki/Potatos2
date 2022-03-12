@@ -1,5 +1,5 @@
-#ifndef _KEYBOARD_HPP
-#define _KEYBOARD_HPP
+#ifndef __KEYBOARD_H__
+#define __KEYBOARD_H__
 
 #include <stdint.h>
 #include <communication/ports.hpp>
@@ -36,4 +36,4 @@ namespace os::driver::Keyboard
   };
 };
 
-#endif
+#endif // __KEYBOARD_H__

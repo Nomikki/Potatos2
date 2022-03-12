@@ -1,5 +1,5 @@
-#ifndef _MOUSE_HPP
-#define _MOUSE_HPP
+#ifndef __MOUSE_H__
+#define __MOUSE_H__
 
 #include <stdint.h>
 #include <communication/ports.hpp>
@@ -44,4 +44,4 @@ namespace os::driver::Mouse
 
 };
 
-#endif
+#endif // __MOUSE_H__

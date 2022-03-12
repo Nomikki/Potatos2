@@ -1,5 +1,5 @@
-#ifndef _STDINT_H
-#define _STDINT_H
+#ifndef __STDINT_H__
+#define __STDINT_H__
 
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
@@ -15,4 +15,4 @@ typedef unsigned long long int uint64_t;
 
 typedef unsigned int size_t;
 
-#endif
+#endif // __STDINT_H__

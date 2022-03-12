@@ -1,5 +1,5 @@
-#ifndef _GDT_H
-#define _GDT_H
+#ifndef __GDT_H__
+#define __GDT_H__
 
 #include <stdint.h>
 
@@ -68,6 +68,15 @@ namespace os::memory
     ~GlobalDescriptorTable();
 
     void init();
+
+    /**
+     * @brief Create a Descriptor object
+     *
+     * @param base
+     * @param limit
+     * @param flag
+     * @return uint64_t
+     */
     uint64_t createDescriptor(uint32_t base, uint32_t limit, uint16_t flag);
     // void flush();
 
@@ -77,4 +86,4 @@ namespace os::memory
 
 };
 
-#endif
+#endif // __GDT_H__

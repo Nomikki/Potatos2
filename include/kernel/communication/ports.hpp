@@ -1,5 +1,5 @@
-#ifndef _PORTS_HPP
-#define _PORTS_HPP
+#ifndef __PORTS_H__
+#define __PORTS_H__
 
 #include <stdint.h>
 
@@ -50,4 +50,4 @@ namespace os::communication
   };
 };
 
-#endif
+#endif // __PORTS_H__

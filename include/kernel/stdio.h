@@ -1,5 +1,5 @@
-#ifndef _STDIO_H
-#define _STDIO_H
+#ifndef __STDIO_H__
+#define __STDIO_H__
 
 #include <stdint.h>
 
@@ -10,4 +10,4 @@ extern int32_t printf(const char *format, ...);
 extern int32_t putchar(int32_t character);
 extern int32_t puts(const char *str);
 
-#endif
+#endif // __STDIO_H__
