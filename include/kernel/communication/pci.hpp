@@ -42,6 +42,31 @@ namespace os::communication
 #define PCI_FUNCTIONMASK 0x07 // 0b00000111 3 bits up
 #define PCI_OFFSETMASK 0xFF   // 0b11111111 8 bits up
 
+
+  class PCIDeviceDescriptor {
+    public:
+
+    uint32_t portBase;
+    uint32_t interrupt;
+
+    uint16_t bus;
+    uint16_t device;
+    uint16_t function;
+
+    uint16_t vendorID;
+    uint16_t deviceID;
+
+    uint8_t classID;
+    uint8_t subclassID;
+    uint8_t interfaceID;
+
+    uint8_t revision;
+
+    PCIDeviceDescriptor();
+    ~PCIDeviceDescriptor();
+
+  };
+
   class PCI
   {
     os::communication::Port32Bit dataPort;
@@ -61,6 +86,7 @@ namespace os::communication
     bool DeviceHasFucntions(uint16_t busNumber, uint16_t deviceNumber);
 
     void SelectDrivers(os::driver::DriverManager *driverManager);
+    PCIDeviceDescriptor GetDeviceDescriptor(uint16_t busNumber, uint16_t deviceNumber, uint16_t functionNumber);
   };
 };
 

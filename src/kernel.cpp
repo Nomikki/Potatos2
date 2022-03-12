@@ -78,6 +78,7 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
   MouseToConsole mouseHandler;
   os::driver::Keyboard::KeyboardDriver keyboard(&idt, &kbHandler);
   os::driver::Mouse::MouseDriver mouse(&idt, &mouseHandler);
+  os::communication::PCI pci;
 
   drvManager.AddDriver(&keyboard);
   drvManager.AddDriver(&mouse);
@@ -86,8 +87,7 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
 
   idt.Activate();
 
-  os::communication::PCI pci;
-  pci.SelectDrivers(&drvManager);
+    pci.SelectDrivers(&drvManager);
 
   while (1)
     ;

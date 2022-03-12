@@ -4,6 +4,14 @@
 using namespace os::communication;
 using namespace os::driver;
 
+PCIDeviceDescriptor::PCIDeviceDescriptor()
+{
+}
+
+PCIDeviceDescriptor::~PCIDeviceDescriptor()
+{
+}
+
 PCI::PCI() : dataPort(PCI_DATAPORT), commandPort(PCI_COMMANDPORT)
 {
   printf("Install PCI\n");
@@ -36,7 +44,7 @@ bool PCI::DeviceHasFucntions(uint16_t busNumber, uint16_t deviceNumber)
 
 void PCI::SelectDrivers(DriverManager *driverManager)
 {
-  printf("bus, device, function, result (hex, bin):\n");
+  printf("b:d  vend:dev  [classID:subclassID]\n");
   for (int bus = 0; bus < 8; bus++)
   {
     for (int device = 0; device < 32; device++)
@@ -48,15 +56,97 @@ void PCI::SelectDrivers(DriverManager *driverManager)
         uint32_t result = Read(bus, device, function, 0);
         if (result != 0xFFFFFFFF)
         {
-          printf("%i:%i:%i", bus, device, function);
+
+          PCIDeviceDescriptor pciDevice = GetDeviceDescriptor(bus, device, function);
+
+          printf("%i:%i ", bus, device);
           if (device < 10)
             printf(" ");
-          
-          printf(" -> %X %B\n", result, result);
+
+          printf("%x%x:%x%x [%x:%x] = ", (pciDevice.vendorID & 0xFF00) >> 8, (pciDevice.vendorID & 0x00FF), (pciDevice.deviceID & 0xFF00) >> 8, pciDevice.deviceID & 0x00FF, pciDevice.classID, pciDevice.subclassID);
+
+          if (pciDevice.vendorID == 0x8086)
+          {
+            printf("Intel, ");
+            if (pciDevice.deviceID == 0x7190)
+              printf("Host bridge\n");
+            else if (pciDevice.deviceID == 0x7191)
+              printf("AGP bridge\n");
+            else if (pciDevice.deviceID == 0x7110)
+              printf("PIIX4 ISA\n");
+            else if (pciDevice.deviceID == 0x100F)
+              printf("82545EM Gigabit Ethernet Controller\n");
+            else if (pciDevice.deviceID == 0x1237)
+              printf("440FX - 82441FX PMC [Natoma]\n");
+            else if (pciDevice.deviceID == 0x7000)
+              printf("82371SB PIIX3 ISA [Natoma/Triton II]\n");
+            else
+              printf("unknow device\n");
+          }
+          else if (pciDevice.vendorID == 0x15AD)
+          {
+            printf("VMware, ");
+
+            if (pciDevice.deviceID == 0x0405)
+              printf("SVGA II Adapter\n");
+            else if (pciDevice.deviceID == 0x0790)
+              printf("PCI bridge\n");
+            else if (pciDevice.deviceID == 0x07A0)
+              printf("PCI Express Root Port\n");
+            else if (pciDevice.deviceID == 0x0770)
+              printf("USB2 EHCI Controller\n");
+            else if (pciDevice.deviceID == 0x07E0)
+              printf("SATA AHCI controller\n");
+            else if (pciDevice.deviceID == 0x0774)
+              printf("USB1.1 UHCI Controller\n");
+            else
+              printf("unknow device\n");
+          }
+          else if (pciDevice.vendorID == 0x1000)
+          {
+            printf("Broadcom, ");
+
+            if (pciDevice.deviceID == 0x0030)
+              printf("53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI\n");
+            else
+              printf("unknow device\n");
+          }
+          else if (pciDevice.vendorID == 0x1274)
+          {
+            printf("Ensoniq, ");
+            if (pciDevice.deviceID == 0x1371)
+              printf("ES1371/ES1373 / Creative Labs CT2518\n");
+            else
+              printf("unknow device\n");
+          }
+          else
+          {
+            printf("Unknow vendor and device\n");
+          }
 
           break;
         }
       }
     }
   }
+}
+
+PCIDeviceDescriptor PCI::GetDeviceDescriptor(uint16_t busNumber, uint16_t deviceNumber, uint16_t functionNumber)
+{
+  PCIDeviceDescriptor result;
+  result.bus = busNumber;
+  result.device = deviceNumber;
+  result.function = functionNumber;
+
+  result.vendorID = Read(busNumber, deviceNumber, functionNumber, 0x00);
+  result.deviceID = Read(busNumber, deviceNumber, functionNumber, 0x02);
+
+  result.classID = Read(busNumber, deviceNumber, functionNumber, 0x0B);
+  result.subclassID = Read(busNumber, deviceNumber, functionNumber, 0x0A);
+  result.interfaceID = Read(busNumber, deviceNumber, functionNumber, 0x09);
+
+  result.revision = Read(busNumber, deviceNumber, functionNumber, 0x08);
+  result.interrupt = Read(busNumber, deviceNumber, functionNumber, 0x3C);
+
+  return result;
 }

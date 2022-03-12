@@ -48,8 +48,8 @@ clean:
 run: install
 	#VirtualBoxVM.exe --startvm "potatos" &
 	#VirtualBoxVM.exe --dbg --startvm "potatos" &
-	#bochs.exe -q bochsrc.bxrc &
-	cmd.exe /c start potpot/potatos.vmx
+	bochs.exe -q bochsrc.bxrc &
+	# cmd.exe /c start potpot/potatos.vmx
 
 all: clean install run 
 
