@@ -23,6 +23,8 @@ namespace os::gui::window
            uint8_t b);
 
     ~Window();
+    
+    virtual void Draw(os::driver::Vesa *gc);
     virtual void OnMouseDown(int32_t x, int32_t y, uint8_t button);
     virtual void OnMouseUp(int32_t x, int32_t y, uint8_t button);
     virtual void OnMouseMove(int32_t oldX, int32_t oldY, int32_t newX, int32_t newY);

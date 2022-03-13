@@ -29,6 +29,7 @@ void Desktop::DrawCursor(Vesa *gc, int32_t x, int32_t y, uint8_t r, uint8_t g, u
 void Desktop::Draw(Vesa *gc)
 {
   CompositeWidget::Draw(gc);
+
   DrawCursor(gc, MouseX, MouseY, 0, 0, 0);
 }
 

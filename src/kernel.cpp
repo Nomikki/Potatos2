@@ -64,7 +64,6 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd)
   while (1)
   {
     desktop.Draw(&vesa);
-    vesa.FillRect(32, 32, 48, 48, 0, 255, 255);
     vesa.Swap();
   }
   

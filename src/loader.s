@@ -40,16 +40,39 @@ loader:
 .extern call_constructors
 .global loader
 
+# Higher half kernelin sisääntulo!
+# Tämä osio on linkkerissä määritelty alkamaan kohdasta 0xC0000000.
+4:
+	# Nyt sivutus on täysin kunnossa ja käytössä.
+	# Voimme unmapata identitymappauksen, koska emme tarvitse sitä enää.
+	# Eli asetamme vain sisällöksi pelkkää nollaa
+	# movl $0, boot_page_directory + 0
+
+	# Ladataan nyt CR3 uudestaan (otetaan sisältö ECX-rekisteriin ja siirretään ECX CR3-rekisteriin)
+	# Tämä aiheuttaa TLB-flushauksen, jolloinka MMU päivittyy.
+	# movl %cr3, %ecx
+	# movl %ecx, %cr3
+
 	# Annetaan pinolle osoitteeksi kernel_stackin kohta.
 	mov $kernel_stack, %esp 
 
- pushl $(_kernel_end)
+
 	# Koska käytämme C++:aa, vaatii se tämän.
 	# Eli kutsumme hieman C++-koodia ennen kuin hyppäämme main-funktioon.
 	call call_constructors
 
 
+	# addl $0xC03DF000, %ebx
+	# movl $0x00010000, %ebx 
+
+	# Annetaan parametrit kernelin main-funktiolle, alkaen oikealta vasemmalle.
+	# push $kernel_stack_start # mistä alkaa pino
+	# push %esp				 # pinon 'pohja'
+	# push %ebx				 # pointer to multiboot structure
+	# push %eax				 # magic number
+
 	# xor %ebp, %ebp
+	pushl $(_kernel_end)
 	push %ebx
 
 	call kernel_main

@@ -43,6 +43,20 @@ void Vesa::Clear(uint8_t r, uint8_t g, uint8_t b)
     doublebuffer[i] = color;
 }
 
+void Vesa::DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t r, uint8_t g, uint8_t b)
+{
+  for (int i = x; i < x + w; i++)
+  {
+    PutPixel(i, y, r, g, b);
+    PutPixel(i, y + h, r, g, b);
+  }
+  for (int i = y; i < y + h; i++)
+  {
+    PutPixel(x, i, r, g, b);
+    PutPixel(x + w, i, r, g, b);
+  }
+}
+
 void Vesa::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t r, uint8_t g, uint8_t b)
 {
   /*

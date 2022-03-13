@@ -20,6 +20,12 @@ Window::~Window()
 {
 }
 
+void Window::Draw(os::driver::Vesa *gc)
+{
+  CompositeWidget::Draw(gc);
+  gc->DrawRect(x-1, y-1, w+1, h+1, 0, 0, 0);
+}
+
 void Window::OnMouseDown(int32_t x, int32_t y, uint8_t button)
 {
   dragging = button == 1;
