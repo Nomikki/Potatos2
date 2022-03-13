@@ -17,6 +17,9 @@ objects = 	obj/loader.o \
 						obj/kernel/drivers/mouse.o \
 						obj/kernel/communication/pci.o \
 						obj/kernel/drivers/vesa.o \
+						obj/kernel/gui/widget.o \
+						obj/kernel/gui/desktop.o \
+						obj/kernel/gui/window.o \
 						obj/kernel.o \
 
 obj/%.o: src/%.cpp

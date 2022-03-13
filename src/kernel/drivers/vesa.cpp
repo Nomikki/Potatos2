@@ -1,11 +1,11 @@
 #include <drivers/vesa.hpp>
 
-using namespace os::drivers;
+using namespace os::driver;
 
 Vesa::Vesa(uint32_t w, uint32_t h)
 {
   buffer = (unsigned int *)0xE0000000;
-  //doublebuffer = (unsigned int *)(0xE0000000);
+  //doublebuffer = (unsigned int *)(0x100000);
 
   width = w;
   height = h;

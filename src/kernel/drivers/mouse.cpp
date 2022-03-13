@@ -7,6 +7,11 @@ MouseEventHandler::MouseEventHandler()
 {
 }
 
+MouseEventHandler::~MouseEventHandler()
+{
+}
+
+
 void MouseEventHandler::OnActivate()
 {
 }

@@ -3,10 +3,12 @@
 
 #include <stdint.h>
 #include <drivers/vesa.hpp>
+#include <drivers/keyboard.hpp>
+#include <drivers/mouse.hpp>
 
 namespace os::gui::widget
 {
-  class Widget
+  class Widget : public os::driver::Keyboard::KeyboardEventHandler
   {
   protected:
     Widget *parent;
@@ -18,6 +20,7 @@ namespace os::gui::widget
     uint8_t r;
     uint8_t g;
     uint8_t b;
+    bool focussable;
 
   public:
     Widget(Widget *parent,
@@ -33,13 +36,47 @@ namespace os::gui::widget
     virtual void GetFocus(Widget *widget);
     virtual void ModelToScreen(int32_t &x, int32_t y);
 
-    virtual void Draw(os::drivers::Vesa *gc);
-    virtual void OnMouseDown(int32_t x, int32_t y);
-    virtual void OnMouseUp(int32_t x, int32_t y);
+    virtual void Draw(os::driver::Vesa *gc);
+    virtual void OnMouseDown(int32_t x, int32_t y, uint8_t button);
+    virtual void OnMouseUp(int32_t x, int32_t y, uint8_t button);
     virtual void OnMouseMove(int32_t oldx, int32_t oldy, int32_t x, int32_t y);
 
-    virtual void OnKeyDown(int32_t x, int32_t y);
-    virtual void OnKeyUp(int32_t x, int32_t y);
+    /*
+    virtual void OnKeyDown(char *str);
+    virtual void OnKeyUp(char *str);
+    */
+
+    bool ContainsCoordinate(int32_t x, int32_t y);
+  };
+
+  class CompositeWidget : public Widget
+  {
+  private:
+    Widget *children[100];
+    int numChildren;
+    Widget *focussedChild;
+
+  public:
+    CompositeWidget(Widget *parent,
+                    int32_t x,
+                    int32_t y,
+                    int32_t w,
+                    int32_t h,
+                    uint8_t r,
+                    uint8_t g,
+                    uint8_t b);
+    ~CompositeWidget();
+
+    virtual void GetFocus(Widget *widget);
+    virtual bool AddChild(Widget *child);
+
+    virtual void Draw(os::driver::Vesa *gc);
+    virtual void OnMouseDown(int32_t x, int32_t y, uint8_t button);
+    virtual void OnMouseUp(int32_t x, int32_t y, uint8_t button);
+    virtual void OnMouseMove(int32_t oldx, int32_t oldy, int32_t x, int32_t y);
+
+    virtual void OnKeyDown(char key);
+    virtual void OnKeyUp(char key);
   };
 
 };

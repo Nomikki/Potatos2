@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace os::drivers
+namespace os::driver
 {
 
   class Vesa
