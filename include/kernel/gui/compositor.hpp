@@ -1,11 +1,16 @@
 #ifndef __COMPOSITOR_H__
 #define __COMPOSITOR_H__
 
-namespace os::gui
+#include <stdint.h>
+
+namespace os::gui::compositor
 {
+  
 
   class Compositor
   {
+    uint16_t x, y, w, h;
+
   public:
     Compositor();
     ~Compositor();

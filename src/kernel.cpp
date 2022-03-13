@@ -8,6 +8,8 @@
 #include <drivers/keyboard.hpp>
 #include <drivers/mouse.hpp>
 #include <communication/pci.hpp>
+#include <drivers/vesa.hpp>
+
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -92,7 +94,7 @@ public:
 // extern "C" void kernel_main(uint32_t magic, uint32_t addr, uint32_t stackSize, uint32_t stackStart)
 extern "C" void kernel_main(multiboot_info_t *mb_info)
 {
-
+  /*
   unsigned int *buffer = (unsigned int *)0xE0000000;
   uint8_t r = 255;
   uint8_t g = 200;
@@ -101,6 +103,19 @@ extern "C" void kernel_main(multiboot_info_t *mb_info)
   for (int i = 0; i < 1024 * 768; i++)
   {
     buffer[i] = (r << 16) + (g << 8) + (b) + 0xff000000;
+  }
+  */
+
+
+  os::drivers::Vesa vesa(1024, 768);
+
+  int i = 0;
+  while(1) {
+    vesa.Clear(255, 0, 255);
+    vesa.FillRect(32 + i, 32, 100, 100, 255, 255, 255);
+    i++;
+    if (i > 900)
+      i = 0;
   }
 
   os::driver::VGA::vga_init();
