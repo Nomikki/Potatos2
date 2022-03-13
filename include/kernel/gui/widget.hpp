@@ -34,7 +34,7 @@ namespace os::gui::widget
     ~Widget();
 
     virtual void GetFocus(Widget *widget);
-    virtual void ModelToScreen(int32_t &x, int32_t y);
+    virtual void ModelToScreen(int32_t &x, int32_t &y);
 
     virtual void Draw(os::driver::Vesa *gc);
     virtual void OnMouseDown(int32_t x, int32_t y, uint8_t button);

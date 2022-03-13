@@ -35,7 +35,7 @@ void Widget::GetFocus(Widget *widget)
     parent->GetFocus(widget);
 }
 
-void Widget::ModelToScreen(int32_t &x, int32_t y)
+void Widget::ModelToScreen(int32_t &x, int32_t &y)
 {
   if (parent != 0)
     parent->ModelToScreen(x, y);
