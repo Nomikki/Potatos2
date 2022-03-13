@@ -42,8 +42,9 @@ class MouseToConsole : public os::driver::Mouse::MouseEventHandler
 public:
   MouseToConsole()
   {
-    x = 0;
-    y = 0;
+    x = 1024 / 2;
+    y = 768 / 2;
+    DrawCursor(0, 0, 0);
   }
 
   void putPixel(int _x, int _y, uint8_t r, uint8_t g, uint8_t b)
@@ -58,16 +59,20 @@ public:
     buffer[i] = (r << 16) + (g << 8) + (b) + 0xff000000;
   }
 
-  void OnMouseMove(int offsetX, int offsetY)
+  void DrawCursor(uint8_t r, uint8_t g, uint8_t b)
   {
-    return;
-    putPixel(x, y, 255, 200, 25);
     for (int j = 0; j < 8; j++)
       for (int i = 0; i < j; i++)
-        putPixel(x + i, y + 8 - j, 255, 200, 25);
+        putPixel(x + i, y + 8 - j, r, g, b);
+  }
+
+  void OnMouseMove(int offsetX, int offsetY)
+  {
 
     int width = 1024;
     int height = 768;
+
+    DrawCursor(255, 200, 25);
 
     x += offsetX;
     y += offsetY;
@@ -80,20 +85,14 @@ public:
     if (y > height)
       y = height;
 
-    putPixel(x, y, 0, 0, 0);
-    for (int j = 0; j < 8; j++)
-      for (int i = 0; i < j; i++)
-        putPixel(x + i, y + 8 - j, 0, 0, 0);
-
-    // VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) | ((VideoMemory[80 * y + x] & 0x00FF));
+    DrawCursor(0, 0, 0);
   }
 };
-
 
 // extern "C" void kernel_main(uint32_t magic, uint32_t addr, uint32_t stackSize, uint32_t stackStart)
 extern "C" void kernel_main(multiboot_info_t *mb_info)
 {
-  /*
+
   unsigned int *buffer = (unsigned int *)0xE0000000;
   uint8_t r = 255;
   uint8_t g = 200;
@@ -103,7 +102,7 @@ extern "C" void kernel_main(multiboot_info_t *mb_info)
   {
     buffer[i] = (r << 16) + (g << 8) + (b) + 0xff000000;
   }
-  */
+
   os::driver::VGA::vga_init();
   os::memory::GlobalDescriptorTable gdt;
   gdt.init();

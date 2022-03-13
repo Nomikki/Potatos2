@@ -15,7 +15,7 @@
 #
 
 .set MAGIC,			0x1badb002
-.set FLAGS,		 0x1 | 0x2 
+.set FLAGS,		 0x1 | 0x2 | 0x4
 .set CHECKSUM, -(MAGIC + FLAGS)
 .set HEADER_ADDR, 0
 .set LOAD_ADDR, 0
