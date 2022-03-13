@@ -12,10 +12,10 @@ namespace os::driver
     uint32_t height;
     uint8_t depth;
     unsigned int *buffer;
-    //unsigned int *doublebuffer;
+    unsigned int *doublebuffer;
 
   public:
-    Vesa(uint32_t w, uint32_t h);
+    Vesa(uint32_t w, uint32_t h, uint32_t dbufferAddress);
     ~Vesa();
     void PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b);
     void Clear(uint8_t r, uint8_t g, uint8_t b);

@@ -12,7 +12,6 @@
 #include <gui/desktop.hpp>
 #include <gui/window.hpp>
 
-
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
@@ -24,7 +23,7 @@ extern "C" void call_constructors()
 }
 
 // extern "C" void kernel_main(uint32_t magic, uint32_t addr, uint32_t stackSize, uint32_t stackStart)
-extern "C" void kernel_main(multiboot_info_t *mb_info)
+extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd)
 {
 
   os::driver::VGA::vga_init();
@@ -34,34 +33,38 @@ extern "C" void kernel_main(multiboot_info_t *mb_info)
 
   os::gui::desktop::Desktop desktop(1024, 768, 255, 200, 20);
 
+  os::communication::PCI pci;
+  printf("upper memory: %i MB\n", mb_info->mem_upper / 1024);
+  printf("kernelEnd: 0x%X\n", kernelEnd);
+  
   os::driver::DriverManager drvManager;
-
   os::driver::Keyboard::KeyboardDriver keyboard(&idt, &desktop);
   os::driver::Mouse::MouseDriver mouse(&idt, &desktop);
-  os::communication::PCI pci;
 
   drvManager.AddDriver(&keyboard);
   drvManager.AddDriver(&mouse);
-
   drvManager.ActivateAll();
-
-
-
   pci.SelectDrivers(&drvManager, &idt);
-
-  os::driver::Vesa vesa(1024, 768);
   
+
+  
+  os::driver::Vesa vesa(1024, 768, kernelEnd);
+
   os::gui::window::Window window1(&desktop, 10, 10, 100, 100, 255, 255, 255);
   desktop.AddChild(&window1);
 
   os::gui::window::Window window2(&desktop, 64, 64, 200, 150, 0, 255, 0);
   desktop.AddChild(&window2);
-
+  
 
   idt.Activate();
+  //while (1)
+    //;
+  
   while (1)
   {
-    //vesa.Clear(255, 200, 20);
     desktop.Draw(&vesa);
+    vesa.Swap();
   }
+  
 }

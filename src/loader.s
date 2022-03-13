@@ -162,6 +162,7 @@ loader:
 	# Annetaan pinolle osoitteeksi kernel_stackin kohta.
 	mov $kernel_stack, %esp 
 
+ pushl $(_kernel_end)
 	# Koska käytämme C++:aa, vaatii se tämän.
 	# Eli kutsumme hieman C++-koodia ennen kuin hyppäämme main-funktioon.
 	call call_constructors
