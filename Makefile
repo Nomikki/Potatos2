@@ -50,8 +50,8 @@ clean:
 	rm -rf obj image/kernel.elf os.iso
 
 run: install
-	#VirtualBoxVM.exe --startvm "potatos" &
-	VirtualBoxVM.exe --dbg --startvm "potatos2" &
+	VirtualBoxVM.exe --startvm "potatos2" &
+ 	#VirtualBoxVM.exe --dbg --startvm "potatos2" &
 	# bochs.exe -q bochsrc.bxrc &
 	#cmd.exe /c start potpot/potatos.vmx
 

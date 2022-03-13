@@ -27,7 +27,17 @@ void Vesa::PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b)
 
 void Vesa::Clear(uint8_t r, uint8_t g, uint8_t b)
 {
-
+  /*
+  //naive method
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      PutPixel(i, j, r, g, b);
+    }
+  }
+  return;
+  */
   uint32_t color = (r << 16) + (g << 8) + (b) + 0xff000000;
   for (uint32_t i = 0; i < width * height; i++)
     doublebuffer[i] = color;
@@ -35,6 +45,17 @@ void Vesa::Clear(uint8_t r, uint8_t g, uint8_t b)
 
 void Vesa::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t r, uint8_t g, uint8_t b)
 {
+  /*
+  //naive method
+  for (int i = x; i < x + w; i++)
+  {
+    for (int j = y; j < y + h; j++)
+    {
+      PutPixel(i, j, r, g, b);
+    }
+  }
+  return;
+  */
 
   if (x < 0)
   {
