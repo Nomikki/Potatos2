@@ -1,3 +1,4 @@
+#include <multiboot.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <drivers/vga.hpp>
@@ -45,33 +46,83 @@ public:
     y = 0;
   }
 
+  void putPixel(int _x, int _y, uint8_t r, uint8_t g, uint8_t b)
+  {
+    static unsigned int *buffer = (unsigned int *)0xE0000000;
+    int width = 1024;
+    int height = 768;
+
+    int i = width * _y + _x;
+    if (_x < 0 || _y < 0 || _x >= width || _y >= height)
+      return;
+    buffer[i] = (r << 16) + (g << 8) + (b) + 0xff000000;
+  }
+
   void OnMouseMove(int offsetX, int offsetY)
   {
-    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) | ((VideoMemory[80 * y + x] & 0x00FF));
+    return;
+    putPixel(x, y, 255, 200, 25);
+    for (int j = 0; j < 8; j++)
+      for (int i = 0; i < j; i++)
+        putPixel(x + i, y + 8 - j, 255, 200, 25);
+
+    int width = 1024;
+    int height = 768;
+
     x += offsetX;
     y += offsetY;
     if (x < 0)
       x = 0;
-    if (x > 79)
-      x = 79;
+    if (x > width)
+      x = width;
     if (y < 0)
       y = 0;
-    if (y > 24)
-      y = 24;
-    VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) | ((VideoMemory[80 * y + x] & 0x00FF));
+    if (y > height)
+      y = height;
+
+    putPixel(x, y, 0, 0, 0);
+    for (int j = 0; j < 8; j++)
+      for (int i = 0; i < j; i++)
+        putPixel(x + i, y + 8 - j, 0, 0, 0);
+
+    // VideoMemory[80 * y + x] = ((VideoMemory[80 * y + x] & 0xF000) >> 4) | ((VideoMemory[80 * y + x] & 0x0F00) << 4) | ((VideoMemory[80 * y + x] & 0x00FF));
   }
 };
 
-extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic, uint32_t stackSize, uint32_t stackStart)
+
+// extern "C" void kernel_main(uint32_t magic, uint32_t addr, uint32_t stackSize, uint32_t stackStart)
+extern "C" void kernel_main(multiboot_info_t *mb_info)
 {
+  /*
+  unsigned int *buffer = (unsigned int *)0xE0000000;
+  uint8_t r = 255;
+  uint8_t g = 200;
+  uint8_t b = 25;
+
+  for (int i = 0; i < 1024 * 768; i++)
+  {
+    buffer[i] = (r << 16) + (g << 8) + (b) + 0xff000000;
+  }
+  */
   os::driver::VGA::vga_init();
   os::memory::GlobalDescriptorTable gdt;
   gdt.init();
   os::communication::InterruptManager idt(&gdt);
 
-  printf("Size of memory: %i Mb\n", sizeOfMemory / 1024 / 1024);
-  printf("Size of stack: %i Kb\n", stackSize / 1024);
-  printf("Start of stack: 0x%X\n", stackStart);
+  // printf("magix = 0x%X\n", mb_info->magic);
+  // printf("flags = 0x%X\n", mb_info->flags);
+  // printf("checksum = 0x%X\n", mb_info->checksum);
+
+  // if (mb_info->checksum != -(mb_info->magic + mb_info->flags))
+  // printf("checksum failed.\n");
+
+  // printf("mode: %u: %u * %u\n", mb_info->mode_type, mb_info->width, mb_info->height);
+
+  printf("mem_lower = %uKB, mem_upper = %uMB\n", (unsigned)mb_info->mem_lower, (unsigned)mb_info->mem_upper / 1024);
+
+  // printf("Size of memory: %i Mb\n", sizeOfMemory / 1024 / 1024);
+  // printf("Size of stack: %i Kb\n", stackSize / 1024);
+  // printf("Start of stack: 0x%X\n", stackStart);
 
   os::driver::DriverManager drvManager;
   printfKeyboardEventHandler kbHandler;

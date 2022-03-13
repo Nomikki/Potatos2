@@ -136,8 +136,10 @@ uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
 
       my = -my;
 
+      /*
       mx /= 2;
       my /= 2;
+      */
 
       eventHandler->OnMouseMove(mx, my);
     }

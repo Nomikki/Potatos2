@@ -15,14 +15,34 @@
 #
 
 .set MAGIC,			0x1badb002
-.set FLAGS,			(1<<0 | 1<<1)
+.set FLAGS,		 0x1 | 0x2 
 .set CHECKSUM, -(MAGIC + FLAGS)
+.set HEADER_ADDR, 0
+.set LOAD_ADDR, 0
+.set LOAD_END_ADDR, 0
+.set LOAD_BSS_END_ADDR, 0
+.set ENTRY_ADDR, 0
+.set MODE_TYPE, 0
+.set WIDTH, 1024
+.set HEIGHT, 768
+.set DEPTH, 32
 
 # Aloitetaan multiboot-osuudella. Eli alkuun muutamat olennaiset tieodt, jotta grub löytää tämän.
 .section .multiboot
 	.long MAGIC
 	.long FLAGS
 	.long CHECKSUM
+
+	.long  HEADER_ADDR
+	.long  LOAD_ADDR
+	.long  LOAD_END_ADDR
+	.long  LOAD_BSS_END_ADDR
+	.long  ENTRY_ADDR
+
+	.long MODE_TYPE
+	.long WIDTH
+	.long HEIGHT 
+	.long DEPTH
 
 # Varataan paikka tauluille ja sivutukselle. Pidetään se 4k:n järjestyksessä ja tyhjänä.
 # Tämä osio sijaitsee BSS:ssä (Basic service set), jossa yleensä sijaitsee paikallisesti varattu tieto ja tieto jolle ei ole annettu arvoa.
@@ -37,10 +57,10 @@
 #	.skip 4096
 .section .multiboot
 loader:
-
+	# movl $(.multiboot), %ebx
 	# push %ebx				 # multibooti-headerin osoite
 	# Napataan vain tieto uppermemoryn koosta ja asetetaan se EBX:ään.
-	movl 0x10100, %ebx
+	# movl 0x10100, %ebx
 
 	# Juurisivutaulun fyysinen osoite (lineaarinen/ns. oikea osoite)
 	# Siirretään se EDI-rekisteriin. EDI on destination register.
@@ -151,12 +171,13 @@ loader:
 	# movl $0x00010000, %ebx 
 
 	# Annetaan parametrit kernelin main-funktiolle, alkaen oikealta vasemmalle.
-	push $kernel_stack_start # mistä alkaa pino
-	push %esp				 # pinon 'pohja'
-	push %eax				 # magic number
-	push %ebx				 # upper memoryn koko
+	# push $kernel_stack_start # mistä alkaa pino
+	# push %esp				 # pinon 'pohja'
+	# push %ebx				 # pointer to multiboot structure
+	# push %eax				 # magic number
 
-	xor %ebp, %ebp
+	# xor %ebp, %ebp
+	push %ebx
 
 	call kernel_main
 	
