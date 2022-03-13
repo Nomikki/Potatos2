@@ -42,10 +42,28 @@ namespace os::communication
 #define PCI_FUNCTIONMASK 0x07 // 0b00000111 3 bits up
 #define PCI_OFFSETMASK 0xFF   // 0b11111111 8 bits up
 
+  enum BaseAddressRegisterType
+  {
+    MemoryMapping = 0,
+    InputOutput = 1,
+  };
 
-  class PCIDeviceDescriptor {
-    public:
+  class BaseAddressRegister
+  {
+  public:
+    bool prefetchable;
+    uint8_t *address;
+    BaseAddressRegisterType type;
 
+    /*
+    BaseAddressRegister();
+    ~BaseAddressRegister();
+    */
+  };
+
+  class PCIDeviceDescriptor
+  {
+  public:
     uint32_t portBase;
     uint32_t interrupt;
 
@@ -64,7 +82,6 @@ namespace os::communication
 
     PCIDeviceDescriptor();
     ~PCIDeviceDescriptor();
-
   };
 
   class PCI
@@ -85,8 +102,10 @@ namespace os::communication
     void Write(uint16_t busNumber, uint16_t deviceNumber, uint16_t functionNumber, uint32_t registerOffset, uint32_t value);
     bool DeviceHasFucntions(uint16_t busNumber, uint16_t deviceNumber);
 
-    void SelectDrivers(os::driver::DriverManager *driverManager);
+    void SelectDrivers(os::driver::DriverManager *driverManager, os::communication::InterruptManager *interrupts);
+    os::driver::Driver *GetDriver(PCIDeviceDescriptor device, os::communication::InterruptManager *interrupts);
     PCIDeviceDescriptor GetDeviceDescriptor(uint16_t busNumber, uint16_t deviceNumber, uint16_t functionNumber);
+    BaseAddressRegister GetBaseAddressRegister(uint16_t busNumber, uint16_t deviceNumber, uint16_t functionNumber, uint16_t bar);
   };
 };
 

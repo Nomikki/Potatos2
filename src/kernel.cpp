@@ -87,7 +87,7 @@ extern "C" void kernel_main(const uint32_t sizeOfMemory, uint32_t multibootMagic
 
   idt.Activate();
 
-    pci.SelectDrivers(&drvManager);
+  pci.SelectDrivers(&drvManager, &idt);
 
   while (1)
     ;
