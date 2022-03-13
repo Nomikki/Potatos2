@@ -10,8 +10,6 @@ Vesa::Vesa(uint32_t w, uint32_t h, uint32_t dbufferAddress)
   width = w;
   height = h;
   depth = 32;
-
-  
 }
 
 Vesa::~Vesa()
@@ -25,40 +23,46 @@ void Vesa::PutPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b)
   if (x < 0 || y < 0 || x >= width || y >= height)
     return;
   doublebuffer[i] = (r << 16) + (g << 8) + (b) + 0xff000000;
-  
 }
 
 void Vesa::Clear(uint8_t r, uint8_t g, uint8_t b)
 {
-  
+
   uint32_t color = (r << 16) + (g << 8) + (b) + 0xff000000;
   for (uint32_t i = 0; i < width * height; i++)
     doublebuffer[i] = color;
-    
 }
 
 void Vesa::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t r, uint8_t g, uint8_t b)
 {
-  
+
+  if (x < 0)
+  {
+    w += x;
+    x = 0;
+  }
+
   uint32_t color = (r << 16) + (g << 8) + (b) + 0xff000000;
   uint32_t offset = width * y + x;
   for (int j = y; j < y + h; j++)
   {
     for (int i = x; i < x + w; i++)
     {
-      doublebuffer[offset] = color;
+
+      if (i >= 0 && offset < width * height && i < width)
+      {
+
+        doublebuffer[offset] = color;
+      }
       offset++;
     }
     offset += (width - w);
   }
-  
 }
 
 void Vesa::Swap()
 {
-  
+
   for (uint32_t i = 0; i < width * height; i++)
     buffer[i] = doublebuffer[i];
-
-    
 }
