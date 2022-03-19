@@ -4,6 +4,7 @@
 #include <drivers/vga.hpp>
 #include <memory/gdt.hpp>
 #include <communication/idt.hpp>
+#include <multitasking.hpp>
 #include <drivers/driver.hpp>
 #include <drivers/keyboard.hpp>
 #include <drivers/mouse.hpp>
@@ -22,13 +23,31 @@ extern "C" void call_constructors()
     (*i)();
 }
 
-void DoPageFault()
+void taskA()
 {
-  uint32_t *ptr = (uint32_t *)0x00700000;
-  for (int i = 0; i < 1024; i++)
+  while (1)
   {
-    ptr += 1024;
-    uint32_t do_page_fault = *ptr;
+    printf("A");
+    int32_t *ptr = 0x0C8000;
+    for (int i = 0; i < 100000; i++)
+    {
+      *ptr = 0x0;
+      ptr += i;
+    }
+  }
+}
+
+void taskB()
+{
+  while (1)
+  {
+    printf("B");
+    uint32_t *ptr = 0x0C8000;
+    for (int i = 0; i < 100000; i++)
+    {
+      *ptr = 0x0;
+      ptr += i;
+    }
   }
 }
 
@@ -38,7 +57,15 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   os::driver::VGA::vga_init();
   os::memory::GlobalDescriptorTable gdt;
   gdt.init();
-  os::communication::InterruptManager idt(&gdt);
+
+  os::TaskManager taskManager;
+  os::Task task1(&gdt, taskA);
+  os::Task task2(&gdt, taskB);
+
+  taskManager.AddTask(&task1);
+  taskManager.AddTask(&task2);
+
+  os::communication::InterruptManager idt(&gdt, &taskManager);
 
   os::communication::PCI pci;
   printf("upper memory: %i MB\n", mb_info->mem_upper / 1024);

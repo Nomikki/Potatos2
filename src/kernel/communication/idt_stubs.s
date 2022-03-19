@@ -1,9 +1,7 @@
 .set IRQ_BASE, 0x20
 
 .section .text
-.extern _ZN2os13communication16InterruptManager15HandleInterruptEjhj
-
-
+.extern _ZN2os13communication16InterruptManager15HandleInterruptEhj
 
 .global _ZN2os13communication16InterruptManager22IgnoreInterruptRequestEv
 
@@ -20,7 +18,7 @@ _ZN2os13communication16InterruptManager19HandleException\num\()Ev:
 .global _ZN2os13communication16InterruptManager19HandleException\num\()Ev
 _ZN2os13communication16InterruptManager19HandleException\num\()Ev:
   movb $\num, (interruptnumber)
-  pushl $0
+  # pushl $0
   jmp int_bottom
 .endm
 
@@ -28,6 +26,8 @@ _ZN2os13communication16InterruptManager19HandleException\num\()Ev:
 .global _ZN2os13communication16InterruptManager26HandleInterruptRequest\num\()Ev
 _ZN2os13communication16InterruptManager26HandleInterruptRequest\num\()Ev:
   movb $\num + IRQ_BASE, (interruptnumber)
+
+  # need to push something to fill 'error'
   pushl $0
   jmp int_bottom
 .endm
@@ -61,33 +61,36 @@ HandleException 0x13
 
 int_bottom:
   # save registers
-    pushl %ebp
-    pushl %edi
-    pushl %esi
+  
+     pushl %ebp
+     pushl %edi
+     pushl %esi
 
-    pushl %edx
-    pushl %ecx
-    pushl %ebx
-    pushl %eax
+     pushl %edx
+     pushl %ecx
+     pushl %ebx
+     pushl %eax
     # call C++ Handler
     
+    # we push a pointer
     pushl %esp
     push (interruptnumber)
-    pushl $0;
-  call _ZN2os13communication16InterruptManager15HandleInterruptEjhj
-  #add %esp, 6
+    # pushl $0;
+  call _ZN2os13communication16InterruptManager15HandleInterruptEhj
+    # add %esp, 6
     mov %eax, %esp # switch the stack
 
     # restore registers
-    popl %eax
-    popl %ebx
-    popl %ecx
-    popl %edx
+     popl %eax
+     popl %ebx
+     popl %ecx
+     popl %edx
 
-    popl %esi
-    popl %edi
-    popl %ebp  
-    add $4, %esp
+     popl %esi
+     popl %edi
+     popl %ebp  
+  
+    add $4, %esp # old error code, jump over it
 
 
 _ZN2os13communication16InterruptManager22IgnoreInterruptRequestEv:

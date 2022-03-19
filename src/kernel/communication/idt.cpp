@@ -58,7 +58,7 @@ InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager *in
 InterruptHandler::~InterruptHandler()
 {
   if (interruptManager->handlers[interruptNumber] == this)
-    interruptManager[interruptNumber] = 0;
+    interruptManager->handlers[interruptNumber] = 0;
 }
 
 uint32_t InterruptHandler::HandleInterrupt(uint32_t esp)
@@ -87,13 +87,14 @@ void InterruptManager::SetInterruptDescriptorTableEntry(
   interruptDecriptorTable[interruptNumber].reserved = 0;
 }
 
-InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt)
+InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt, os::TaskManager *taskManager)
     : picMasterCommand(0x20),
       picMasterData(0x21),
       picSlaveCommand(0xA0),
       picSlaveData(0xA1)
 {
   uint16_t CodeSegment = gdt->CodeSegmentSelector();
+  this->taskManager = taskManager;
 
   const uint8_t IDT_INTERRUPT_GATE = 0x0E;
 
@@ -102,8 +103,8 @@ InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt)
     SetInterruptDescriptorTableEntry(i, CodeSegment, &IgnoreInterruptRequest, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
     handlers[i] = 0;
   }
-  
-  //set exceptions
+
+  // set exceptions
   SetInterruptDescriptorTableEntry(0x00, CodeSegment, &HandleException0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x01, CodeSegment, &HandleException0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x02, CodeSegment, &HandleException0x02, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
@@ -125,16 +126,12 @@ InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt)
   SetInterruptDescriptorTableEntry(0x12, CodeSegment, &HandleException0x12, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x13, CodeSegment, &HandleException0x13, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
 
-
-
-
   /*
     If we get interrupt 0x20, we jump to handleInterruptRequest0x00
   */
   SetInterruptDescriptorTableEntry(0x20, CodeSegment, &HandleInterruptRequest0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x2C, CodeSegment, &HandleInterruptRequest0x0C, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
-
 
   // before we load IDS, we must communicate with PICs
   // and tell to not ignore signals anymore (with command 0x11)
@@ -191,7 +188,7 @@ void InterruptManager::Deactivate()
   __asm__ volatile("sti");
 }
 
-uint32_t InterruptManager::HandleInterrupt(uint32_t err, uint8_t interruptNumber, uint32_t esp)
+uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
   if (ActiveInterruptManager != 0)
     return ActiveInterruptManager->DoHandleInterrupt(interruptNumber, esp);
@@ -200,7 +197,6 @@ uint32_t InterruptManager::HandleInterrupt(uint32_t err, uint8_t interruptNumber
 
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
-   
 
   if (handlers[interruptNumber] != 0)
   {
@@ -209,18 +205,20 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t e
   else if (interruptNumber != 0x20)
   {
     // if its not timer interrupts, print value
-     printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
-    
-    
+    printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+
     if (interruptNumber != 0)
     {
-      while(1);;
+      while (1)
+        ;
+      ;
     }
-  
   }
 
+  // timer interrupt
   if (interruptNumber == 0x20)
   {
+    esp = (uint32_t)taskManager->Schedule((CPUState *)esp);
   }
 
   if (interruptNumber >= 0x20 && interruptNumber < 0x20 + 16)

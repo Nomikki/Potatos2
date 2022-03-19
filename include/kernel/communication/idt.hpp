@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <communication/ports.hpp>
 #include <memory/gdt.hpp>
+#include <multitasking.hpp>
 
 namespace os::communication
 {
@@ -28,9 +29,11 @@ namespace os::communication
   {
     friend class InterruptHandler;
     InterruptHandler *handlers[256];
-
+    os::TaskManager *taskManager;
   protected:
     static InterruptManager *ActiveInterruptManager;
+  
+
 
     struct GateDescriptor
     {
@@ -62,14 +65,14 @@ namespace os::communication
     Port8BitSlow picSlaveData;
 
   public:
-    InterruptManager(os::memory::GlobalDescriptorTable *gdt);
+    InterruptManager(os::memory::GlobalDescriptorTable *gdt, os::TaskManager * taskManager);
     ~InterruptManager();
 
     void Activate();
     void Deactivate();
 
     // which interrupt and current stack pointer
-    static uint32_t HandleInterrupt(uint32_t err, uint8_t interruptNumber, uint32_t esp);
+    static uint32_t HandleInterrupt(uint8_t interruptNumber, uint32_t esp);
     uint32_t DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp);
 
     static void IgnoreInterruptRequest();

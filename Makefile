@@ -16,6 +16,7 @@ objects = 	obj/loader.o \
 						obj/kernel/communication/ports.o \
 						obj/kernel/communication/idt_stubs.o \
 						obj/kernel/communication/idt.o \
+						obj/kernel/multitasking.o \
 						obj/kernel/drivers/vga.o \
 						obj/kernel/string.o \
 						obj/kernel/stdio.o \
