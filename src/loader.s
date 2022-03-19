@@ -1,6 +1,16 @@
 
 .set MAGIC,			0x1badb002
-.set FLAGS,		 0x1 | 0x2 | 0x4
+.set ALIGN, 0x1
+.set MEMINFO, 0x2
+# .set VIDEO, 0x4
+
+
+.ifdef VIDEO 
+.set FLAGS,		 ALIGN | MEMINFO  | VIDEO 
+.else
+.set FLAGS,		 ALIGN | MEMINFO 
+.endif 
+
 .set CHECKSUM, -(MAGIC + FLAGS)
 .set HEADER_ADDR, 0
 .set LOAD_ADDR, 0
@@ -12,12 +22,13 @@
 .set HEIGHT, 768
 .set DEPTH, 32
 
+
 # Aloitetaan multiboot-osuudella. Eli alkuun muutamat olennaiset tieodt, jotta grub löytää tämän.
 .section .multiboot
 	.long MAGIC
 	.long FLAGS
 	.long CHECKSUM
-
+.ifdef VIDEO 
 	.long  HEADER_ADDR
 	.long  LOAD_ADDR
 	.long  LOAD_END_ADDR
@@ -28,8 +39,9 @@
 	.long WIDTH
 	.long HEIGHT 
 	.long DEPTH
+.endif
 
-#boot_page_table1:
+# boot_page_table1:
 
 .section .multiboot
 loader:
@@ -71,10 +83,11 @@ loader:
 	# push %ebx				 # pointer to multiboot structure
 	# push %eax				 # magic number
 
-	# xor %ebp, %ebp
+	xor %ebp, %ebp
+	pushl $FLAGS
 	pushl $(_kernel_end)
-	push %ebx
-
+	pushl %ebx
+	xor %eax, %eax
 	call kernel_main
 	
 _stop:

@@ -1,6 +1,13 @@
 
+# gfx = true
 GPPPARAMS = -s -m32 -Iinclude/kernel -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings -fpermissive -fno-pic -ffreestanding -Wl,--build-id=none
-ASPARAMS	= --32
+
+ifeq ($(gfx), 1)
+ASPARAMS	= --32 --defsym VIDEO=4
+else
+	ASPARAMS	= --32
+endif
+
 LDPARAMS = -melf_i386
 
 objects = 	obj/loader.o \
@@ -35,7 +42,6 @@ kernel.elf: linker.ld $(objects)
 	ld $(LDPARAMS) -T $< -o image/$@ $(objects)
 
 install: kernel.elf
-
 	mkdir -p iso
 	mkdir -p iso/boot
 	mkdir -p iso/boot/grub
@@ -49,7 +55,12 @@ install: kernel.elf
 clean:
 	rm -rf obj image/kernel.elf os.iso
 
-run: install
+removeFirst:
+	rm -rf obj/kernel.o
+	rm -rf obj/loader.o
+	
+
+run: removeFirst install
 	VirtualBoxVM.exe --startvm "potatos2" &
  	#VirtualBoxVM.exe --dbg --startvm "potatos2" &
 	# bochs.exe -q bochsrc.bxrc &
