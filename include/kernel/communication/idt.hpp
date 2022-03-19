@@ -8,7 +8,7 @@
 namespace os::communication
 {
 
-    class InterruptManager;
+  class InterruptManager;
   // base class
   class InterruptHandler
   {
@@ -69,13 +69,34 @@ namespace os::communication
     void Deactivate();
 
     // which interrupt and current stack pointer
-    static uint32_t HandleInterrupt(uint8_t interruptNumber, uint32_t esp);
+    static uint32_t HandleInterrupt(uint32_t err, uint8_t interruptNumber, uint32_t esp);
     uint32_t DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp);
 
     static void IgnoreInterruptRequest();
     static void HandleInterruptRequest0x00(); // timer
     static void HandleInterruptRequest0x01(); // keyboard
     static void HandleInterruptRequest0x0C(); // mouse
+
+    static void HandleException0x00();
+    static void HandleException0x01();
+    static void HandleException0x02();
+    static void HandleException0x03();
+    static void HandleException0x04();
+    static void HandleException0x05();
+    static void HandleException0x06();
+    static void HandleException0x07();
+    static void HandleException0x08();
+    static void HandleException0x09();
+    static void HandleException0x0A();
+    static void HandleException0x0B();
+    static void HandleException0x0C();
+    static void HandleException0x0D();
+    static void HandleException0x0E();
+    static void HandleException0x0F();
+    static void HandleException0x10();
+    static void HandleException0x11();
+    static void HandleException0x12();
+    static void HandleException0x13();
   };
 
 };

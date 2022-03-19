@@ -12,21 +12,21 @@
   pääsyoikeudet (0 - 3)
 
   //på finska
-  IDT-himmeli:                                                                
-  - Konstruktorissa asennetaan tarvittavat keskeytykset ja mihin funktioon ne 
+  IDT-himmeli:
+  - Konstruktorissa asennetaan tarvittavat keskeytykset ja mihin funktioon ne
     johtaa (esim HandleInterruptRequest0x00)
   - Kun keskeytys laukaistaan, hypätään idt_stub.s:n puolella oleviin
     HandleInterrupt-makroihin joissa asetetaan pinoon nykyiset rekisteriarvot
     ja tehdään loikka InterruptManager::HandleInterrupt-metodiin
   - kyseisessä metodissa hypätään lopulta DoHandleInterruptiin (pieni ruma
     kikka, koska meillä on staattisia funktioita) jolla päästään viimein
-    käsittelemään keskeytykset 
-  
+    käsittelemään keskeytykset
+
   - Jos meillä on handleri kyseisen keskeytysnumeron kohdalla, hypätään siihen
     (näin voidaan bindaa eri laitteille keskeytykset)
     - Muussa tapauksessa jos keskeytys on kaikkea muuta kuin 32 (pit timer),
       huudellaan hanskaamattomasta keskeytyksestä
-  
+
   - Jos keskeytysnumero on alta väliltä 32...48 (0x20...0x30), kyse on
     remapatusta IRQ:sta. Kerrotaan siihen suuntaan että ollaan valmiita
     jatkamaan.
@@ -37,7 +37,7 @@
     Ajurissa on oltava  InterruptHandler (perittynä) ja InterruptManager.
     Handlerille kerromme mikä keskeytysluku ja mikä InterruptManager.
   - Handleri lisää itsensä sisältä käsin InterruptManageriin. Ja koska handler
-    on peritty, voidaan sen virtuaalista HandleInterrupt-funktiota kutsua, 
+    on peritty, voidaan sen virtuaalista HandleInterrupt-funktiota kutsua,
     jolloinka ajurissa oleva vastaava kutsu kutsutaan.
 
 
@@ -102,12 +102,39 @@ InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt)
     SetInterruptDescriptorTableEntry(i, CodeSegment, &IgnoreInterruptRequest, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
     handlers[i] = 0;
   }
+  
+  //set exceptions
+  SetInterruptDescriptorTableEntry(0x00, CodeSegment, &HandleException0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x01, CodeSegment, &HandleException0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x02, CodeSegment, &HandleException0x02, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x03, CodeSegment, &HandleException0x03, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x04, CodeSegment, &HandleException0x04, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x05, CodeSegment, &HandleException0x05, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x06, CodeSegment, &HandleException0x06, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x07, CodeSegment, &HandleException0x07, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x08, CodeSegment, &HandleException0x08, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x09, CodeSegment, &HandleException0x09, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x0A, CodeSegment, &HandleException0x0A, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x0B, CodeSegment, &HandleException0x0B, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x0C, CodeSegment, &HandleException0x0C, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x0D, CodeSegment, &HandleException0x0D, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x0E, CodeSegment, &HandleException0x0E, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x0F, CodeSegment, &HandleException0x0F, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x10, CodeSegment, &HandleException0x10, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x11, CodeSegment, &HandleException0x11, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x12, CodeSegment, &HandleException0x12, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x13, CodeSegment, &HandleException0x13, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+
+
+
+
   /*
     If we get interrupt 0x20, we jump to handleInterruptRequest0x00
   */
   SetInterruptDescriptorTableEntry(0x20, CodeSegment, &HandleInterruptRequest0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x2C, CodeSegment, &HandleInterruptRequest0x0C, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+
 
   // before we load IDS, we must communicate with PICs
   // and tell to not ignore signals anymore (with command 0x11)
@@ -164,7 +191,7 @@ void InterruptManager::Deactivate()
   __asm__ volatile("sti");
 }
 
-uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp)
+uint32_t InterruptManager::HandleInterrupt(uint32_t err, uint8_t interruptNumber, uint32_t esp)
 {
   if (ActiveInterruptManager != 0)
     return ActiveInterruptManager->DoHandleInterrupt(interruptNumber, esp);
@@ -173,6 +200,7 @@ uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp
 
 uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t esp)
 {
+   
 
   if (handlers[interruptNumber] != 0)
   {
@@ -181,7 +209,14 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t e
   else if (interruptNumber != 0x20)
   {
     // if its not timer interrupts, print value
-    printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+     printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+    
+    
+    if (interruptNumber != 0)
+    {
+      while(1);;
+    }
+  
   }
 
   if (interruptNumber == 0x20)

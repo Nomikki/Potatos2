@@ -39,10 +39,10 @@ void GlobalDescriptorTable::init()
   __asm__("cli");
 
   gdtEntries[0] = createDescriptor(0, 0, 0);
-  gdtEntries[1] = createDescriptor(0, 0xFFFFFFFF, (GDT_CODE_PL0));
-  gdtEntries[2] = createDescriptor(0, 0xFFFFFFFF, (GDT_DATA_PL0));
-  gdtEntries[3] = createDescriptor(0, 0xFFFFFFFF, (GDT_CODE_PL3));
-  gdtEntries[4] = createDescriptor(0, 0xFFFFFFFF, (GDT_DATA_PL3));
+  gdtEntries[1] = createDescriptor(0x0, 0xFFFFFFFF, (GDT_CODE_PL0));
+  gdtEntries[2] = createDescriptor(0x0, 0xFFFFFFFF, (GDT_DATA_PL0));
+  gdtEntries[3] = createDescriptor(0x0, 0xFFFFFFFF, (GDT_CODE_PL3));
+  gdtEntries[4] = createDescriptor(0x0, 0xFFFFFFFF, (GDT_DATA_PL3));
 
   gdtPacket.address = (uint32_t)&gdtEntries[0];
   gdtPacket.size = sizeof(gdtEntries);

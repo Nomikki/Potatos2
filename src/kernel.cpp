@@ -22,6 +22,16 @@ extern "C" void call_constructors()
     (*i)();
 }
 
+void DoPageFault()
+{
+  uint32_t *ptr = (uint32_t *)0x00700000;
+  for (int i = 0; i < 1024; i++)
+  {
+    ptr += 1024;
+    uint32_t do_page_fault = *ptr;
+  }
+}
+
 // extern "C" void kernel_main(uint32_t magic, uint32_t addr, uint32_t stackSize, uint32_t stackStart)
 extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint32_t flags)
 {
@@ -29,6 +39,7 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   os::memory::GlobalDescriptorTable gdt;
   gdt.init();
   os::communication::InterruptManager idt(&gdt);
+
   os::communication::PCI pci;
   printf("upper memory: %i MB\n", mb_info->mem_upper / 1024);
   printf("kernelEnd: 0x%X\n", kernelEnd);
@@ -41,6 +52,7 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   if (flags == 3)
   {
     idt.Activate();
+
     while (1)
       ;
   }
@@ -62,11 +74,8 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
     os::gui::window::Window window2(&desktop, 64, 64, 200, 150, 0, 255, 0);
     desktop.AddChild(&window2);
 
-    drvManager.ActivateAll();
-    pci.SelectDrivers(&drvManager, &idt);
-
     idt.Activate();
-    printf("Ohaiii!\n");
+
     while (1)
     {
       desktop.Draw(&vesa);
