@@ -59,11 +59,10 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   gdt.init();
 
   os::TaskManager taskManager;
-  os::Task task1(&gdt, taskA);
-  os::Task task2(&gdt, taskB);
-
-  taskManager.AddTask(&task1);
-  taskManager.AddTask(&task2);
+  // os::Task task1(&gdt, taskA);
+  // os::Task task2(&gdt, taskB);
+  // taskManager.AddTask(&task1);
+  // taskManager.AddTask(&task2);
 
   os::communication::InterruptManager idt(&gdt, &taskManager);
 

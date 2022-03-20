@@ -205,14 +205,63 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t e
   else if (interruptNumber != 0x20)
   {
     // if its not timer interrupts, print value
-    printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+    printf("PANIC!\n");
 
-    if (interruptNumber != 0)
-    {
-      while (1)
-        ;
+    if (interruptNumber == 0x00)
+      printf("[#DE] [ ] DIV BY ZERO\n");
+    else if (interruptNumber == 0x01)
+      printf("[#DB] [ ] DEBUG\n");
+    else if (interruptNumber == 0x02)
+      printf("[ - ] [ ] NMI\n");
+    else if (interruptNumber == 0x03)
+      printf("[#BP] [ ] BREAKPOINT\n");
+    else if (interruptNumber == 0x04)
+      printf("[#OF] [ ] OVERFLOW\n");
+    else if (interruptNumber == 0x05)
+      printf("[#BR] [ ] BOUND RANGE EXCEEDED\n");
+    else if (interruptNumber == 0x06)
+      printf("[#UD] [ ] INVALID OPCODE\n");
+    else if (interruptNumber == 0x07)
+      printf("[#NM] [ ] DEV NOT AVAILABLE\n");
+    else if (interruptNumber == 0x08)
+      printf("[#DF] [E] DOUBLE FAULT\n");
+    else if (interruptNumber == 0x09)
+      printf("[ - ] [ ] ?\n");
+    else if (interruptNumber == 0x0A)
+      printf("[#TS] [E] INVALID TSS\n");
+    else if (interruptNumber == 0x0B)
+      printf("[#NP] [E] SEGMENT NOT PRESENT\n");
+    else if (interruptNumber == 0x0C)
+      printf("[#SS] [E] STACK SEGMENT FAULT\n");
+    else if (interruptNumber == 0x0D)
+      printf("[#GP] [E] GENERAL PROTECTION FAULT\n");
+    else if (interruptNumber == 0x0E)
+      printf("[#PF] [E] PAGE FAULT\n");
+    else if (interruptNumber == 0x0F)
+      printf("[ - ] [ ] RESERVED\n");
+    else if (interruptNumber == 0X10)
+      printf("[#MF] [ ] X87 FLOATING POINT EXCEPTION");
+    else if (interruptNumber == 0x11)
+      printf("[#AC] [E] ALIGN CHECK\n");
+    else if (interruptNumber == 0x12)
+      printf("[#MC] [ ] MACHINE CHECK\n");
+    else if (interruptNumber == 0x13)
+      printf("[#XM] [ ] SIMD FLOATING POINT ERROR\n");
+    else
+      printf("UNHANDLED INTERRUPT %i (0x%x)\n", interruptNumber, interruptNumber);
+
+    CPUState *cpu = (CPUState *)esp;
+    printf("EAX %X  EBX %X   ECX %X  EDX %X\n", cpu->eax, cpu->ebx, cpu->ecx, cpu->edx);
+    printf("ESI %X  EDI %X   EBP %X\n", cpu->esi, cpu->edi, cpu->ebp);
+    printf("EFLAGS %X [%B]\n", cpu->eflags, cpu->eflags);
+    printf("EIP %X\n", cpu->eip);
+    printf("ERROR %X\n", cpu->errorCode);
+
+    printf("CS %x  ESP %X   SS %X\n", cpu->cs, cpu->esp, cpu->ss);
+
+    while (1)
       ;
-    }
+    ;
   }
 
   // timer interrupt
