@@ -77,7 +77,21 @@ namespace os::communication
     static void IgnoreInterruptRequest();
     static void HandleInterruptRequest0x00(); // timer
     static void HandleInterruptRequest0x01(); // keyboard
+    static void HandleInterruptRequest0x02();
+    static void HandleInterruptRequest0x03();
+    static void HandleInterruptRequest0x04();
+    static void HandleInterruptRequest0x05();
+    static void HandleInterruptRequest0x06();
+    static void HandleInterruptRequest0x07();
+    static void HandleInterruptRequest0x08();
+    static void HandleInterruptRequest0x09();
+    static void HandleInterruptRequest0x0A();
+    static void HandleInterruptRequest0x0B();
     static void HandleInterruptRequest0x0C(); // mouse
+    static void HandleInterruptRequest0x0D();
+    static void HandleInterruptRequest0x0E();
+    static void HandleInterruptRequest0x0F();
+    static void HandleInterruptRequest0x31();
 
     static void HandleException0x00();
     static void HandleException0x01();

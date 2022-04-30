@@ -1,5 +1,6 @@
 #include <communication/pci.hpp>
 #include <stdio.h>
+#include <drivers/AMD/am79c973.hpp>
 
 using namespace os::communication;
 using namespace os::driver;
@@ -52,6 +53,13 @@ Driver *PCI::GetDriver(PCIDeviceDescriptor device, os::communication::InterruptM
     switch (device.deviceID)
     {
     case 0x2000: // AM79c973
+      
+      driver = (am79c973 *)os::memory::MemoryManager::activeMemoryManager->malloc(sizeof(am79c973));
+      if (driver != 0)
+        new (driver) am79c973(&device, interrupts);
+      return driver;
+      
+
       break;
     }
     break;
@@ -130,17 +138,12 @@ void PCI::SelectDrivers(DriverManager *driverManager, InterruptManager *interrup
         {
           BaseAddressRegister bar = GetBaseAddressRegister(bus, device, function, barNum);
           if (bar.address && (bar.type == InputOutput))
-          {
             pciDevice.portBase = (uint32_t)bar.address;
-
-            Driver *driver = GetDriver(pciDevice, interrupts);
-
-            if (driver != 0)
-            {
-              driverManager->AddDriver(driver);
-            }
-          }
         }
+
+        Driver *driver = GetDriver(pciDevice, interrupts);
+        if (driver != 0)
+          driverManager->AddDriver(driver);
 
         printf("%i:%i:%i ", bus, device, function);
         if (device < 10)
@@ -153,7 +156,7 @@ void PCI::SelectDrivers(DriverManager *driverManager, InterruptManager *interrup
           printf("AMD, ");
 
           if (pciDevice.deviceID == 0x2000) // am79c973
-            printf("79c970 [PCnet32 LANCE]\n");
+            printf("am79c970 [PCnet32 LANCE]\n");
           else
             printf("unknow device\n");
         }

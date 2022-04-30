@@ -104,6 +104,10 @@ InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt, os::T
     handlers[i] = 0;
   }
 
+  SetInterruptDescriptorTableEntry(0, CodeSegment, &IgnoreInterruptRequest, 0, IDT_INTERRUPT_GATE);
+  handlers[0] = 0;
+
+
   // set exceptions
   SetInterruptDescriptorTableEntry(0x00, CodeSegment, &HandleException0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x01, CodeSegment, &HandleException0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
@@ -131,7 +135,20 @@ InterruptManager::InterruptManager(os::memory::GlobalDescriptorTable *gdt, os::T
   */
   SetInterruptDescriptorTableEntry(0x20, CodeSegment, &HandleInterruptRequest0x00, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x22, CodeSegment, &HandleInterruptRequest0x02, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x23, CodeSegment, &HandleInterruptRequest0x03, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x24, CodeSegment, &HandleInterruptRequest0x04, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x25, CodeSegment, &HandleInterruptRequest0x05, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x26, CodeSegment, &HandleInterruptRequest0x06, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x27, CodeSegment, &HandleInterruptRequest0x07, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x28, CodeSegment, &HandleInterruptRequest0x08, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x29, CodeSegment, &HandleInterruptRequest0x09, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x2A, CodeSegment, &HandleInterruptRequest0x0A, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x2B, CodeSegment, &HandleInterruptRequest0x0B, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
   SetInterruptDescriptorTableEntry(0x2C, CodeSegment, &HandleInterruptRequest0x0C, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x2D, CodeSegment, &HandleInterruptRequest0x0D, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x2E, CodeSegment, &HandleInterruptRequest0x0E, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
+  SetInterruptDescriptorTableEntry(0x2F, CodeSegment, &HandleInterruptRequest0x0F, 0 /*kernel space*/, IDT_INTERRUPT_GATE);
 
   // before we load IDS, we must communicate with PICs
   // and tell to not ignore signals anymore (with command 0x11)
@@ -183,9 +200,6 @@ void InterruptManager::Deactivate()
     ActiveInterruptManager = 0;
     __asm__ volatile("cli");
   }
-
-  ActiveInterruptManager = this;
-  __asm__ volatile("sti");
 }
 
 uint32_t InterruptManager::HandleInterrupt(uint8_t interruptNumber, uint32_t esp)
@@ -270,7 +284,7 @@ uint32_t InterruptManager::DoHandleInterrupt(uint8_t interruptNumber, uint32_t e
     esp = (uint32_t)taskManager->Schedule((CPUState *)esp);
   }
 
-  if (interruptNumber >= 0x20 && interruptNumber < 0x20 + 16)
+  if (0x20 <= interruptNumber && interruptNumber < 0x20 + 16)
   {
     // we only have to answer to hardware interrupts
     // we are good with that interrupt, so send command to pics, that we are ready to take more

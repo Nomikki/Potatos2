@@ -36,7 +36,21 @@ _ZN2os13communication16InterruptManager26HandleInterruptRequest\num\()Ev:
 
 HandleInterruptRequest 0x00 # timer
 HandleInterruptRequest 0x01 # keyboard
+HandleInterruptRequest 0x02
+HandleInterruptRequest 0x03
+HandleInterruptRequest 0x04
+HandleInterruptRequest 0x05
+HandleInterruptRequest 0x06
+HandleInterruptRequest 0x07
+HandleInterruptRequest 0x08
+HandleInterruptRequest 0x09
+HandleInterruptRequest 0x0A
+HandleInterruptRequest 0x0B
 HandleInterruptRequest 0x0C # mouse
+HandleInterruptRequest 0x0D
+HandleInterruptRequest 0x0E
+HandleInterruptRequest 0x0F
+HandleInterruptRequest 0x31
 
 HandleException 0x00 # div by zero
 HandleException 0x01 # debug

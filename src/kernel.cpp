@@ -101,7 +101,10 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   // text mode
   if (flags == 3)
   {
+    pci.SelectDrivers(&drvManager, &idt);
+    drvManager.ActivateAll();
     idt.Activate();
+
 
     while (1)
       ;
@@ -124,8 +127,8 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
     os::gui::window::Window window2(&desktop, 64, 64, 200, 150, 0, 255, 0);
     desktop.AddChild(&window2);
 
-    drvManager.ActivateAll();
     pci.SelectDrivers(&drvManager, &idt);
+    drvManager.ActivateAll();
 
     idt.Activate();
 

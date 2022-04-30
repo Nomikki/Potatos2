@@ -5,7 +5,7 @@ using namespace os::memory;
 
 Task::Task(GlobalDescriptorTable *gdt, void entryPoint())
 {
-  cpuState = (CPUState*)(stack + 4096 - sizeof(CPUState));
+  cpuState = (CPUState *)(stack + 4096 - sizeof(CPUState));
 
   cpuState->eax = 0;
   cpuState->ebx = 0;
@@ -16,11 +16,11 @@ Task::Task(GlobalDescriptorTable *gdt, void entryPoint())
   cpuState->edi = 0;
   cpuState->ebp = 0;
 
-  //uncomment if dealing with userspace - maybe?
-  //cpuState->esp = 0;
+  // uncomment if dealing with userspace - maybe?
+  // cpuState->esp = 0;
   cpuState->eip = (uint32_t)entryPoint;
   cpuState->cs = gdt->CodeSegmentSelector();
-  //cpuState->ss = 0;
+  // cpuState->ss = 0;
   cpuState->eflags = 0x202;
 
   /*
@@ -30,8 +30,6 @@ Task::Task(GlobalDescriptorTable *gdt, void entryPoint())
   cpuState->ds = 0;
   cpuState->errorCode = 0;
   */
-
-
 }
 
 Task::~Task()
@@ -63,11 +61,13 @@ CPUState *TaskManager::Schedule(CPUState *cpuState)
   if (numTasks <= 0)
     return cpuState;
 
-  if (currentTask >= 0) {
+  if (currentTask >= 0)
+  {
     tasks[currentTask]->cpuState = cpuState;
   }
 
-  if (++currentTask >= numTasks) {
+  if (++currentTask >= numTasks)
+  {
     currentTask %= numTasks;
   }
 
