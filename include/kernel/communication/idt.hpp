@@ -30,10 +30,9 @@ namespace os::communication
     friend class InterruptHandler;
     InterruptHandler *handlers[256];
     os::TaskManager *taskManager;
+
   protected:
     static InterruptManager *ActiveInterruptManager;
-  
-
 
     struct GateDescriptor
     {
@@ -65,7 +64,7 @@ namespace os::communication
     Port8BitSlow picSlaveData;
 
   public:
-    InterruptManager(os::memory::GlobalDescriptorTable *gdt, os::TaskManager * taskManager);
+    InterruptManager(os::memory::GlobalDescriptorTable *gdt, os::TaskManager *taskManager);
     ~InterruptManager();
 
     void Activate();

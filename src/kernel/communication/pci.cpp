@@ -44,6 +44,8 @@ bool PCI::DeviceHasFucntions(uint16_t busNumber, uint16_t deviceNumber)
 
 Driver *PCI::GetDriver(PCIDeviceDescriptor device, os::communication::InterruptManager *interrupts)
 {
+  Driver *driver = 0;
+
   switch (device.vendorID)
   {
   case 0x1022: // AMD
@@ -69,7 +71,7 @@ Driver *PCI::GetDriver(PCIDeviceDescriptor device, os::communication::InterruptM
     break;
   }
 
-  return 0;
+  return driver;
 }
 
 BaseAddressRegister PCI::GetBaseAddressRegister(uint16_t busNumber, uint16_t deviceNumber, uint16_t functionNumber, uint16_t bar)
@@ -146,14 +148,14 @@ void PCI::SelectDrivers(DriverManager *driverManager, InterruptManager *interrup
 
         printf("%x%x:%x%x [%x:%x] = ", (pciDevice.vendorID & 0xFF00) >> 8, (pciDevice.vendorID & 0x00FF), (pciDevice.deviceID & 0xFF00) >> 8, pciDevice.deviceID & 0x00FF, pciDevice.classID, pciDevice.subclassID);
 
-        if (pciDevice.vendorID == 0x1022) //AMD
+        if (pciDevice.vendorID == 0x1022) // AMD
         {
           printf("AMD, ");
 
-          if (pciDevice.deviceID == 0x2000) //am79c973
+          if (pciDevice.deviceID == 0x2000) // am79c973
             printf("79c970 [PCnet32 LANCE]\n");
-          else 
-            printf("unknow device\n"); 
+          else
+            printf("unknow device\n");
         }
 
         else if (pciDevice.vendorID == 0x8086)
@@ -191,12 +193,12 @@ void PCI::SelectDrivers(DriverManager *driverManager, InterruptManager *interrup
         else if (pciDevice.vendorID == 0x80EE)
         {
           printf("InnoTek Systemberatung GmbH, ");
-          
+
           if (pciDevice.deviceID == 0xCAFE)
             printf("VirtualBox Guest Service\n");
           else if (pciDevice.deviceID == 0xBEEF)
             printf("VirtualBox Graphics Adapter\n");
-          else 
+          else
             printf("unknow device\n");
         }
         else if (pciDevice.vendorID == 0x106B)
@@ -205,9 +207,8 @@ void PCI::SelectDrivers(DriverManager *driverManager, InterruptManager *interrup
 
           if (pciDevice.deviceID == 0x003F)
             printf("KeyLargo/Intrepid USB\n");
-          else 
+          else
             printf("unknow device\n");
-
         }
         else if (pciDevice.vendorID == 0x15AD)
         {

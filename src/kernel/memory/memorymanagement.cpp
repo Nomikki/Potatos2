@@ -89,3 +89,42 @@ void MemoryManager::free(void *ptr)
       chunk->next->prev = chunk;
   }
 }
+
+void *operator new(size_t size)
+{
+  if (os::memory::MemoryManager::activeMemoryManager == 0)
+    return 0;
+
+  return os::memory::MemoryManager::activeMemoryManager->malloc(size);
+}
+
+void *operator new[](size_t size)
+{
+   if (os::memory::MemoryManager::activeMemoryManager == 0)
+    return 0;
+
+  return os::memory::MemoryManager::activeMemoryManager->malloc(size);
+}
+
+void *operator new(size_t size, void* ptr)
+{
+  return ptr;
+}
+
+void *operator new[](size_t size, void* ptr)
+{
+  return ptr;
+}
+
+
+void operator delete(void *ptr)
+{
+   if (os::memory::MemoryManager::activeMemoryManager != 0)
+    os::memory::MemoryManager::activeMemoryManager->free(ptr);
+}
+
+void operator delete[](void *ptr)
+{
+  if (os::memory::MemoryManager::activeMemoryManager != 0)
+    os::memory::MemoryManager::activeMemoryManager->free(ptr);
+}

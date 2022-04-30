@@ -28,10 +28,19 @@ namespace os::memory
     void free(void *ptr);
   };
 
-  
-  
-  
-  
 };
+
+
+// c++ style new/delete operators ♥
+void *operator new(size_t size);
+void *operator new[](size_t size);
+
+//placement new
+void *operator new(size_t size, void* ptr);
+void *operator new[](size_t size, void* ptr);
+
+void operator delete(void* ptr);
+void operator delete[](void* ptr);
+
 
 #endif // __MEMORYMANAGEMENT_H__

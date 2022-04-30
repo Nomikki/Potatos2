@@ -59,8 +59,8 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   os::memory::GlobalDescriptorTable gdt;
   gdt.init();
 
-  size_t heapStartAddress = kernelEnd; //start heap after kernel
-  size_t padding = 10*1024;
+  size_t heapStartAddress = kernelEnd; // start heap after kernel
+  size_t padding = 10 * 1024;
   size_t sizeOfHeap = mb_info->mem_upper * 1024 - heapStartAddress - padding;
   os::memory::MemoryManager memoryManager(heapStartAddress, sizeOfHeap);
 
@@ -76,13 +76,27 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   printf("Upper memory: %i MB\n", mb_info->mem_upper / 1024);
   printf("Addr of Kernel end: 0x%X\n", kernelEnd);
   printf("Addr of Heap: 0x%X\n", heapStartAddress);
-  
-  void *allocated = memoryManager.malloc(1024);
-  printf("allocated: 0x%X\n", (size_t)allocated);
 
+/* 
+  // allocation test
+  for (int i = 0; i < 100; i++)
+  {
+    void *allocated = memoryManager.malloc(1024);
+    printf("allocated: 0x%X\n", (size_t)allocated);
 
+    void *allocated2 = memoryManager.malloc(1024);
+    printf("allocated: 0x%X\n", (size_t)allocated2);
+
+    memoryManager.free(allocated);
+
+    void *allocated3 = memoryManager.malloc(10240);
+    printf("allocated: 0x%X\n", (size_t)allocated3);
+
+    memoryManager.free(allocated3);
+    memoryManager.free(allocated2);
+  }
+ */
   os::driver::DriverManager drvManager;
- 
 
   // text mode
   if (flags == 3)
@@ -110,7 +124,7 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
     os::gui::window::Window window2(&desktop, 64, 64, 200, 150, 0, 255, 0);
     desktop.AddChild(&window2);
 
-     drvManager.ActivateAll();
+    drvManager.ActivateAll();
     pci.SelectDrivers(&drvManager, &idt);
 
     idt.Activate();

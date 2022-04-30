@@ -31,6 +31,7 @@
 #include <communication/ports.hpp>
 #include <communication/idt.hpp>
 #include <drivers/driver.hpp>
+#include <memory/memorymanagement.hpp>
 
 namespace os::communication
 {
