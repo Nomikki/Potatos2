@@ -3,11 +3,13 @@
 
 
 Rough TODO
-- PCI scanner
-- Support AM79C973 netcard
-- Ethernet (icmp, ipv4, udp, tcp)
-- Scheluder
-- Memory mapping (and move kernel to higher half memory), paging
+- ✔ PCI scanner
+- ✔ Scheluder
+  - ✔ pit based
+- ✔ VGA graphic mode, double buffering
+- ! Interrupt exception handlers, awesome panic screen, stack trace
+  - ✔ exception handles
 - Memory allocations/free
-- Interrupt exception handlers, awesome panic screen, stack trace
-- VGA graphic mode, double buffering
+- Support AM79C973 netcard
+- Memory mapping (and move kernel to higher half memory), paging
+- Ethernet (icmp, ipv4, udp, tcp)
