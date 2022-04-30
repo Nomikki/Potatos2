@@ -11,7 +11,11 @@ Rough TODO
 - ✔ VGA graphic mode, double buffering
 - ! Interrupt exception handlers, awesome panic screen, stack trace
   - ✔ exception handles
-- Memory allocations/free
+  - awesome panic screen
+  - stack trace
+- ✔ Memory allocations/free
+  - ✔ new and delete operators
 - Support AM79C973 netcard
 - Memory mapping (and move kernel to higher half memory), paging
 - Ethernet (icmp, ipv4, udp, tcp)
+- Serial port (write to)
