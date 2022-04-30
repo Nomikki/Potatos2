@@ -71,8 +71,7 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   printf("kernelEnd: 0x%X\n", kernelEnd);
 
   os::driver::DriverManager drvManager;
-  drvManager.ActivateAll();
-  pci.SelectDrivers(&drvManager, &idt);
+ 
 
   // text mode
   if (flags == 3)
@@ -99,6 +98,9 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
 
     os::gui::window::Window window2(&desktop, 64, 64, 200, 150, 0, 255, 0);
     desktop.AddChild(&window2);
+
+     drvManager.ActivateAll();
+    pci.SelectDrivers(&drvManager, &idt);
 
     idt.Activate();
 

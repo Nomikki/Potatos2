@@ -1,8 +1,8 @@
 
-# gfx = true
+gfx = true
 GPPPARAMS = -s -m32 -Iinclude/kernel -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -Wno-write-strings -fpermissive -fno-pic -ffreestanding -Wl,--build-id=none
 
-ifeq ($(gfx), 1)
+ifeq ($(gfx), true)
 ASPARAMS	= --32 --defsym VIDEO=4
 else
 	ASPARAMS	= --32
@@ -17,6 +17,7 @@ objects = 	obj/loader.o \
 						obj/kernel/communication/idt_stubs.o \
 						obj/kernel/communication/idt.o \
 						obj/kernel/multitasking.o \
+						obj/kernel/memory/memorymanagement.o \
 						obj/kernel/drivers/vga.o \
 						obj/kernel/string.o \
 						obj/kernel/stdio.o \
