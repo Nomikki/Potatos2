@@ -25,6 +25,7 @@ objects = 	obj/loader.o \
 						obj/kernel/drivers/keyboard.o \
 						obj/kernel/drivers/mouse.o \
 						obj/kernel/communication/pci.o \
+						obj/kernel/drivers/AMD/am79c973.o \
 						obj/kernel/drivers/vesa.o \
 						obj/kernel/gui/widget.o \
 						obj/kernel/gui/desktop.o \
