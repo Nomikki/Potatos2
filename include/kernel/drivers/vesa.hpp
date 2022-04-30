@@ -24,7 +24,6 @@ namespace os::driver
     void Swap();
   };
 
-
 };
 
 #endif // __VESA_H__
