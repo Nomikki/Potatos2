@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <drivers/vga.hpp>
 #include <memory/gdt.hpp>
+#include <memory/memorymanagement.hpp>
 #include <communication/idt.hpp>
 #include <multitasking.hpp>
 #include <drivers/driver.hpp>
@@ -58,6 +59,11 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   os::memory::GlobalDescriptorTable gdt;
   gdt.init();
 
+  size_t heapStartAddress = kernelEnd; //start heap after kernel
+  size_t padding = 10*1024;
+  size_t sizeOfHeap = mb_info->mem_upper * 1024 - heapStartAddress - padding;
+  os::memory::MemoryManager memoryManager(heapStartAddress, sizeOfHeap);
+
   os::TaskManager taskManager;
   // os::Task task1(&gdt, taskA);
   // os::Task task2(&gdt, taskB);
@@ -67,8 +73,13 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   os::communication::InterruptManager idt(&gdt, &taskManager);
 
   os::communication::PCI pci;
-  printf("upper memory: %i MB\n", mb_info->mem_upper / 1024);
-  printf("kernelEnd: 0x%X\n", kernelEnd);
+  printf("Upper memory: %i MB\n", mb_info->mem_upper / 1024);
+  printf("Addr of Kernel end: 0x%X\n", kernelEnd);
+  printf("Addr of Heap: 0x%X\n", heapStartAddress);
+  
+  void *allocated = memoryManager.malloc(1024);
+  printf("allocated: 0x%X\n", (size_t)allocated);
+
 
   os::driver::DriverManager drvManager;
  
