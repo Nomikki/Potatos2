@@ -97,6 +97,6 @@ _stop:
 
 .section .bootstrap_stack, "aw", @nobits
 kernel_stack_start:
-# .space 1*1024*1024 #1 MiB
-.space 16*1024 # 16 KiB
+ .space 1*1024*1024 #1 MiB
+# .space 16*1024 # 16 KiB
 kernel_stack:

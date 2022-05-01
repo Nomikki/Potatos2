@@ -5,6 +5,33 @@ using namespace os;
 using namespace os::communication;
 using namespace os::driver;
 
+// RAW DATA HANDLER
+
+RawDataHandler::RawDataHandler(am79c973 *backend)
+{
+  
+  this->backend = backend;
+  backend->SetHandler(this);
+  
+}
+
+RawDataHandler::~RawDataHandler()
+{
+  backend->SetHandler(0);
+}
+
+bool RawDataHandler::OnRawDataReceived(uint8_t *buffer, uint32_t size)
+{
+  return false;
+}
+
+void RawDataHandler::Send(uint8_t *buffer, uint32_t size)
+{
+  backend->Send(buffer, size);
+}
+
+// AM79c973
+
 am79c973::am79c973(PCIDeviceDescriptor *device, InterruptManager *interrupts)
     : Driver(),
       InterruptHandler(device->interrupt + 0x20 /*offset*/, interrupts),
@@ -16,8 +43,11 @@ am79c973::am79c973(PCIDeviceDescriptor *device, InterruptManager *interrupts)
       resetPort(device->portBase + 0x14),
       busControlRegisterDataPort(device->portBase + 0x016)
 {
+  
   currentSendBuffer = 0;
   currentRecvBuffer = 0;
+
+  this->handler = 0;
 
   uint64_t MAC0 = MacAddress0Port.Read() % 256;
   uint64_t MAC1 = MacAddress0Port.Read() / 256;
@@ -77,6 +107,7 @@ am79c973::am79c973(PCIDeviceDescriptor *device, InterruptManager *interrupts)
   registerDataPort.Write((uint32_t)(&initBlock) & 0xFFFF);
   registerAddressPort.Write(2);
   registerDataPort.Write(((uint32_t)(&initBlock) >> 16) & 0xFFFF);
+  
 }
 
 am79c973::~am79c973()
@@ -137,8 +168,7 @@ uint32_t am79c973::HandleInterrupt(uint32_t esp)
   if ((temp & 0x100) == 0x0100)
     printf("Init done\n");
 
-  printf("%X\n", temp);
-
+  // printf("%X\n", temp);
   return esp;
 }
 
@@ -171,25 +201,37 @@ void am79c973::Receive()
   printf("Data received\n");
   for (; (recvBufferDescr[currentRecvBuffer].flags & 0x80000000) == 0; currentRecvBuffer = (currentRecvBuffer + 1) % 8)
   {
-    if (!(recvBufferDescr[currentRecvBuffer].flags & 0x40000000) // check error bit
-      && (recvBufferDescr[currentRecvBuffer].flags & 0x03000000) == 0x03000000) //check start of packet (stp) and end of packet (enp) bits
-    { //check page 184
+    if (!(recvBufferDescr[currentRecvBuffer].flags & 0x40000000)                  // check error bit
+        && (recvBufferDescr[currentRecvBuffer].flags & 0x03000000) == 0x03000000) // check start of packet (stp) and end of packet (enp) bits
+    {                                                                             // check page 184
       uint32_t size = recvBufferDescr[currentRecvBuffer].flags & 0xFFF;
       if (size > 64)
-        size -= 4; //remove checksum
+        size -= 4; // remove checksum
 
-      uint8_t* buffer = (uint8_t*)(recvBufferDescr[currentRecvBuffer].address);
-
-      //iterate data
-      for (int i = 0; i < size; i++)
+      uint8_t *buffer = (uint8_t *)(recvBufferDescr[currentRecvBuffer].address);
+      
+      if (handler != 0)
       {
-        printf("%x: %c, ", buffer[i], (char)buffer[i]);
+        if (handler->OnRawDataReceived(buffer, size))
+        {
+          Send(buffer, size);
+        }
       }
-      printf("\n");
+      
 
-      //tell device we are ready with this data
+      // tell device we are ready with this data
       recvBufferDescr[currentRecvBuffer].flags2 = 0;
       recvBufferDescr[currentRecvBuffer].flags = 0x8000F7FF;
     }
   }
+}
+
+void am79c973::SetHandler(RawDataHandler *handler)
+{
+  this->handler = handler;
+}
+
+uint64_t am79c973::GetMACAddress()
+{
+  return initBlock.physicalAddress;
 }

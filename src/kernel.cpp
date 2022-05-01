@@ -14,6 +14,7 @@
 #include <gui/desktop.hpp>
 #include <gui/window.hpp>
 #include <drivers/AMD/am79c973.hpp>
+#include <network/ethernetframe.hpp>
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -24,6 +25,50 @@ extern "C" void call_constructors()
   for (constructor *i = &start_ctors; i != &end_ctors; i++)
     (*i)();
 }
+
+class PrintfKeyboardEventHandler : public os::driver::Keyboard::KeyboardEventHandler
+{
+public:
+  void OnKeyDown(char c)
+  {
+    char *foo = " ";
+    foo[0] = c;
+    printf(foo);
+  }
+};
+
+class MouseToConsole : public os::driver::Mouse::MouseEventHandler
+{
+  int8_t x, y;
+
+public:
+  MouseToConsole()
+  {
+    uint16_t *VideoMemory = (uint16_t *)0xb8000;
+    x = 40;
+    y = 12;
+    VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0x0F00) << 4 | (VideoMemory[80 * y + x] & 0xF000) >> 4 | (VideoMemory[80 * y + x] & 0x00FF);
+  }
+
+  virtual void OnMouseMove(int xoffset, int yoffset)
+  {
+    static uint16_t *VideoMemory = (uint16_t *)0xb8000;
+    VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0x0F00) << 4 | (VideoMemory[80 * y + x] & 0xF000) >> 4 | (VideoMemory[80 * y + x] & 0x00FF);
+
+    x += xoffset;
+    if (x >= 80)
+      x = 79;
+    if (x < 0)
+      x = 0;
+    y += yoffset;
+    if (y >= 25)
+      y = 24;
+    if (y < 0)
+      y = 0;
+
+    VideoMemory[80 * y + x] = (VideoMemory[80 * y + x] & 0x0F00) << 4 | (VideoMemory[80 * y + x] & 0xF000) >> 4 | (VideoMemory[80 * y + x] & 0x00FF);
+  }
+};
 
 void taskA()
 {
@@ -78,38 +123,47 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   printf("Addr of Kernel end: 0x%X\n", kernelEnd);
   printf("Addr of Heap: 0x%X\n", heapStartAddress);
 
-/* 
-  // allocation test
-  for (int i = 0; i < 100; i++)
-  {
-    void *allocated = memoryManager.malloc(1024);
-    printf("allocated: 0x%X\n", (size_t)allocated);
+  /*
+    // allocation test
+    for (int i = 0; i < 100; i++)
+    {
+      void *allocated = memoryManager.malloc(1024);
+      printf("allocated: 0x%X\n", (size_t)allocated);
 
-    void *allocated2 = memoryManager.malloc(1024);
-    printf("allocated: 0x%X\n", (size_t)allocated2);
+      void *allocated2 = memoryManager.malloc(1024);
+      printf("allocated: 0x%X\n", (size_t)allocated2);
 
-    memoryManager.free(allocated);
+      memoryManager.free(allocated);
 
-    void *allocated3 = memoryManager.malloc(10240);
-    printf("allocated: 0x%X\n", (size_t)allocated3);
+      void *allocated3 = memoryManager.malloc(10240);
+      printf("allocated: 0x%X\n", (size_t)allocated3);
 
-    memoryManager.free(allocated3);
-    memoryManager.free(allocated2);
-  }
- */
+      memoryManager.free(allocated3);
+      memoryManager.free(allocated2);
+    }
+   */
   os::driver::DriverManager drvManager;
-  
 
   // text mode
   if (flags == 3)
   {
+    PrintfKeyboardEventHandler kbhandler;
+    os::driver::Keyboard::KeyboardDriver keyboard(&idt, &kbhandler);
+    drvManager.AddDriver(&keyboard);
+
+    MouseToConsole mousehandler;
+    os::driver::Mouse::MouseDriver mouse(&idt, &mousehandler);
+    drvManager.AddDriver(&mouse);
+
     pci.SelectDrivers(&drvManager, &idt);
     drvManager.ActivateAll();
 
-    os::driver::am79c973 *eth0 = (os::driver::am79c973*)(drvManager.mDrivers[0]);
+    os::driver::am79c973 *eth0 = (os::driver::am79c973 *)(drvManager.mDrivers[2]);
+    os::net::EthernetFrameProvider etherFrame(eth0);
+    etherFrame.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t*)"FOO", 3);
+    //  eth0->Send((uint8_t*)"Hello world", 12);
+    
     idt.Activate();
-    eth0->Send((uint8_t*)"Hello world", 12);
-
 
     while (1)
       ;

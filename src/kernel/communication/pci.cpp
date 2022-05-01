@@ -53,12 +53,11 @@ Driver *PCI::GetDriver(PCIDeviceDescriptor device, os::communication::InterruptM
     switch (device.deviceID)
     {
     case 0x2000: // AM79c973
-      
+
       driver = (am79c973 *)os::memory::MemoryManager::activeMemoryManager->malloc(sizeof(am79c973));
       if (driver != 0)
         new (driver) am79c973(&device, interrupts);
       return driver;
-      
 
       break;
     }

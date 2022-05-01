@@ -19,6 +19,26 @@ namespace os
 {
   namespace driver
   {
+    // almost same concept as interrupt handler
+    // but this is middle of hardware and software protocols
+    // thats why there is backend, because we want to communicate with 
+    // with hardware also
+
+    class am79c973;
+
+    class RawDataHandler
+    {
+    protected:
+      am79c973 *backend;
+
+    public:
+      RawDataHandler(am79c973 *backend);
+      ~RawDataHandler();
+
+      virtual bool OnRawDataReceived(uint8_t* buffer, uint32_t size);
+      void Send(uint8_t* buffer, uint32_t size);
+
+    };
 
     class am79c973 : public os::driver::Driver, public os::communication::InterruptHandler
     {
@@ -71,7 +91,7 @@ namespace os
       // Tells which buffer is currently active
       uint8_t currentRecvBuffer;
 
-      
+      RawDataHandler *handler;
 
     public:
       am79c973(os::communication::PCIDeviceDescriptor *device, os::communication::InterruptManager *interrupts);
@@ -86,6 +106,9 @@ namespace os
 
       void Send(uint8_t *buffer, int size);
       void Receive();
+
+      void SetHandler(RawDataHandler *handler);
+      uint64_t GetMACAddress();
     };
   }
 }
