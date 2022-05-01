@@ -51,6 +51,8 @@ loader:
 .extern kernel_main
 .extern call_constructors
 .global loader
+.global _Z9stackLeftv
+.global _Z14GetSizeOfStackv
 
 # Higher half kernelin sisääntulo!
 # Tämä osio on linkkerissä määritelty alkamaan kohdasta 0xC0000000.
@@ -95,8 +97,21 @@ _stop:
 	hlt
 	jmp _stop
 
+
+# left of stack
+_Z9stackLeftv:
+	mov %esp, %eax 
+	subl $kernel_stack_start, %eax 
+ret 
+
+# get size of stack
+_Z14GetSizeOfStackv:
+	xor %eax, %eax 
+	mov $kernel_stack, %eax 
+	subl $kernel_stack_start, %eax
+ret 
+
 .section .bootstrap_stack, "aw", @nobits
 kernel_stack_start:
- .space 1*1024*1024 #1 MiB
-# .space 16*1024 # 16 KiB
+	.space 1*1024*1024 #1 MiB
 kernel_stack:

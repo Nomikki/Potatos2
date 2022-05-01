@@ -20,6 +20,18 @@ typedef void (*constructor)();
 extern "C" constructor start_ctors;
 extern "C" constructor end_ctors;
 
+extern uint32_t stackLeft();
+extern uint32_t GetSizeOfStack();
+
+void CheckStackStatus()
+{
+  uint32_t left = stackLeft() / 1024;
+  uint32_t size = GetSizeOfStack() / 1024;
+  float perc = (100.0 / size * left);
+
+  printf("Stack left: %u kB / %u kB = %u% free\n", left, size, (int)perc );
+}
+
 extern "C" void call_constructors()
 {
   for (constructor *i = &start_ctors; i != &end_ctors; i++)
@@ -105,6 +117,8 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   os::memory::GlobalDescriptorTable gdt;
   gdt.init();
 
+  CheckStackStatus();
+
   size_t heapStartAddress = kernelEnd; // start heap after kernel
   size_t padding = 10 * 1024;
   size_t sizeOfHeap = mb_info->mem_upper * 1024 - heapStartAddress - padding;
@@ -160,9 +174,9 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
 
     os::driver::am79c973 *eth0 = (os::driver::am79c973 *)(drvManager.mDrivers[2]);
     os::net::EthernetFrameProvider etherFrame(eth0);
-    etherFrame.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t*)"FOO", 3);
+    etherFrame.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t *)"FOO", 3);
     //  eth0->Send((uint8_t*)"Hello world", 12);
-    
+
     idt.Activate();
 
     while (1)
