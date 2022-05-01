@@ -1,5 +1,5 @@
-#ifndef __AM79C973_H__
-#define __AM79C973_H__
+#ifndef __AM79C973_HPP
+#define __AM79C973_HPP
 
 /*
   This device can have multiple send and receive buffers
@@ -90,4 +90,4 @@ namespace os
   }
 }
 
-#endif // __AM79C973_H__
+#endif // __AM79C973_HPP
