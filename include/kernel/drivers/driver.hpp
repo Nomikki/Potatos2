@@ -32,10 +32,11 @@ namespace os::driver
   class DriverManager
   {
   private:
-    os::driver::Driver *mDrivers[255];
+   
     int numDrivers;
 
   public:
+   os::driver::Driver *mDrivers[255];
     DriverManager();
     ~DriverManager();
     void AddDriver(os::driver::Driver *driver);

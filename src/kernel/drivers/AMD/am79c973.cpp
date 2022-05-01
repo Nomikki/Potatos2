@@ -19,8 +19,6 @@ am79c973::am79c973(PCIDeviceDescriptor *device, InterruptManager *interrupts)
   currentSendBuffer = 0;
   currentRecvBuffer = 0;
 
-  printf("dev interrupt: %x\n", device->interrupt);
-
   uint64_t MAC0 = MacAddress0Port.Read() % 256;
   uint64_t MAC1 = MacAddress0Port.Read() / 256;
   uint64_t MAC2 = MacAddress2Port.Read() % 256;
@@ -30,7 +28,14 @@ am79c973::am79c973(PCIDeviceDescriptor *device, InterruptManager *interrupts)
 
   uint64_t MAC = MAC5 << 40 | MAC4 << 32 | MAC3 << 24 | MAC2 << 16 | MAC1 << 8 | MAC0;
 
-  printf("!!! MAC ADDR: %x:%x:%x:%x:%x:%x !!! \n", MAC0, MAC1, MAC2, MAC3, MAC4, MAC5);
+  uint8_t M0 = MAC & 0xFF;
+  uint8_t M1 = (MAC >> 8) & 0xFF;
+  uint8_t M2 = (MAC >> 16) & 0xFF;
+  uint8_t M3 = (MAC >> 24) & 0xFF;
+  uint8_t M4 = (MAC >> 32) & 0xFF;
+  uint8_t M5 = (MAC >> 40) & 0xFF;
+
+  printf("+ MAC ADDR: %x:%x:%x:%x:%x:%x\n", M0, M1, M2, M3, M4, M5);
 
   // set device to 32 bit mode
   registerAddressPort.Write(20);
@@ -117,9 +122,13 @@ uint32_t am79c973::HandleInterrupt(uint32_t esp)
   if ((temp & 0x0800) == 0x0800)
     printf("Memory error\n");
   if ((temp & 0x400) == 0x400)
-    printf("Data received\n");
+  {
+    Receive();
+  }
   if ((temp & 0x200) == 0x0200)
+  {
     printf("Data sent\n");
+  }
 
   // ACK
   registerAddressPort.Write(0);
@@ -127,7 +136,60 @@ uint32_t am79c973::HandleInterrupt(uint32_t esp)
 
   if ((temp & 0x100) == 0x0100)
     printf("Init done\n");
-    
+
+  printf("%X\n", temp);
 
   return esp;
+}
+
+void am79c973::Send(uint8_t *buffer, int size)
+{
+  int sendDescriptor = currentSendBuffer;
+  currentSendBuffer = (currentSendBuffer + 1) % 8;
+
+  if (size > 1518)
+    size = 1518;
+
+  // copy data to sendbuffer
+  for (uint8_t *src = buffer + size - 1,
+               *dst = (uint8_t *)(sendBufferDescr[sendDescriptor].address + size - 1);
+       src >= buffer; src--, dst--)
+  {
+    *dst = *src;
+  }
+
+  sendBufferDescr[sendDescriptor].available = 0;
+  sendBufferDescr[sendDescriptor].flags2 = 0; // clear error messages
+  sendBufferDescr[sendDescriptor].flags = 0x8300F000 | ((uint16_t)((-size) & 0xFFF));
+
+  registerAddressPort.Write(0);
+  registerDataPort.Write(0x48); // send command
+}
+
+void am79c973::Receive()
+{
+  printf("Data received\n");
+  for (; (recvBufferDescr[currentRecvBuffer].flags & 0x80000000) == 0; currentRecvBuffer = (currentRecvBuffer + 1) % 8)
+  {
+    if (!(recvBufferDescr[currentRecvBuffer].flags & 0x40000000) // check error bit
+      && (recvBufferDescr[currentRecvBuffer].flags & 0x03000000) == 0x03000000) //check start of packet (stp) and end of packet (enp) bits
+    { //check page 184
+      uint32_t size = recvBufferDescr[currentRecvBuffer].flags & 0xFFF;
+      if (size > 64)
+        size -= 4; //remove checksum
+
+      uint8_t* buffer = (uint8_t*)(recvBufferDescr[currentRecvBuffer].address);
+
+      //iterate data
+      for (int i = 0; i < size; i++)
+      {
+        printf("%x: %c, ", buffer[i], (char)buffer[i]);
+      }
+      printf("\n");
+
+      //tell device we are ready with this data
+      recvBufferDescr[currentRecvBuffer].flags2 = 0;
+      recvBufferDescr[currentRecvBuffer].flags = 0x8000F7FF;
+    }
+  }
 }

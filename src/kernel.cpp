@@ -13,6 +13,7 @@
 #include <drivers/vesa.hpp>
 #include <gui/desktop.hpp>
 #include <gui/window.hpp>
+#include <drivers/AMD/am79c973.hpp>
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -97,13 +98,17 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
   }
  */
   os::driver::DriverManager drvManager;
+  
 
   // text mode
   if (flags == 3)
   {
     pci.SelectDrivers(&drvManager, &idt);
     drvManager.ActivateAll();
+
+    os::driver::am79c973 *eth0 = (os::driver::am79c973*)(drvManager.mDrivers[0]);
     idt.Activate();
+    eth0->Send((uint8_t*)"Hello world", 12);
 
 
     while (1)

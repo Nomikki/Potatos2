@@ -4,6 +4,7 @@
 /*
   This device can have multiple send and receive buffers
   Check this pdf: https://www.amd.com/system/files/TechDocs/21510.pdf
+  or https://www.amd.com/system/files/TechDocs/20550.pdf
   Also https://wiki.osdev.org/AMD_PCNET
 
 */
@@ -77,11 +78,14 @@ namespace os
       ~am79c973();
 
       // Inherit Activate and Reset from Driver class
-      virtual void Activate();
-      virtual int Reset();
+      void Activate();
+      int Reset();
 
       // Inherit HandleInterrupt from InterruptHandler class
-      virtual uint32_t HandleInterrupt(uint32_t esp);
+      uint32_t HandleInterrupt(uint32_t esp);
+
+      void Send(uint8_t *buffer, int size);
+      void Receive();
     };
   }
 }
