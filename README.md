@@ -2,6 +2,7 @@
 
 ![Alt text](screenshots/1.png?raw=true "sceenshot")
 ![Alt text](screenshots/2.png?raw=true "sceenshot")
+Check sreenshots directory for more.
 
 
 Rough TODO
