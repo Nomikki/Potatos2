@@ -21,7 +21,7 @@ Rough TODO
   - ✔ am79c9c73 driver
   - rtl8193 driver
   - ✔ ethernet frame
-  - arp
+  - ✔ arp
   - icmp
   - ivp4
   - udp
