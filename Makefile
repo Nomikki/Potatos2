@@ -27,6 +27,7 @@ objects = 	obj/loader.o \
 						obj/kernel/communication/pci.o \
 						obj/kernel/drivers/AMD/am79c973.o \
 						obj/kernel/network/ethernetframe.o \
+						obj/kernel/network/arp.o \
 						obj/kernel/drivers/vesa.o \
 						obj/kernel/gui/widget.o \
 						obj/kernel/gui/desktop.o \

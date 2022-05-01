@@ -49,6 +49,9 @@ namespace os
 
       bool OnRawDataReceived(uint8_t *buffer, uint32_t size);
       void Send(uint64_t dstMAC_BE, uint16_t etherType_BE, uint8_t *buffer, uint32_t size);
+
+      uint32_t GetIPAddress();
+      uint64_t GetMACAddress();
     };
   }
 }

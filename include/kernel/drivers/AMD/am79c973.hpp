@@ -108,7 +108,10 @@ namespace os
       void Receive();
 
       void SetHandler(RawDataHandler *handler);
+      
       uint64_t GetMACAddress();
+      void SetIPAddress(uint32_t ip);
+      uint32_t GetIPAddress();
     };
   }
 }

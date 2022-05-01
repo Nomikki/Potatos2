@@ -15,6 +15,7 @@
 #include <gui/window.hpp>
 #include <drivers/AMD/am79c973.hpp>
 #include <network/ethernetframe.hpp>
+#include <network/arp.hpp>
 
 typedef void (*constructor)();
 extern "C" constructor start_ctors;
@@ -29,7 +30,7 @@ void CheckStackStatus()
   uint32_t size = GetSizeOfStack() / 1024;
   float perc = (100.0 / size * left);
 
-  printf("Stack left: %u kB / %u kB = %u% free\n", left, size, (int)perc );
+  printf("Stack left: %u kB / %u kB = %u% free\n", left, size, (int)perc);
 }
 
 extern "C" void call_constructors()
@@ -172,12 +173,27 @@ extern "C" void kernel_main(multiboot_info_t *mb_info, uint32_t kernelEnd, uint3
     pci.SelectDrivers(&drvManager, &idt);
     drvManager.ActivateAll();
 
+    uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
+    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 2;
+
     os::driver::am79c973 *eth0 = (os::driver::am79c973 *)(drvManager.mDrivers[2]);
+
+    // now someone else can ask our ip
+    uint32_t ip_be = ((uint32_t)ip4 << 24) | ((uint32_t)ip3 << 16) | ((uint32_t)ip2 << 8) | ((uint32_t)ip1);      // our ip
+    uint32_t gip_be = ((uint32_t)gip4 << 24) | ((uint32_t)gip3 << 16) | ((uint32_t)gip2 << 8) | ((uint32_t)gip1); // gateway ip
+    eth0->SetIPAddress(ip_be);
+
     os::net::EthernetFrameProvider etherFrame(eth0);
-    etherFrame.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t *)"FOO", 3);
-    //  eth0->Send((uint8_t*)"Hello world", 12);
+    os::net::AddressResolutionProtocol arp(&etherFrame);
+
+    // etherFrame.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t *)"FOO", 3);
 
     idt.Activate();
+
+    printf("\n");
+    arp.Resolve(gip_be);
+
+    arp.PrintCache();
 
     while (1)
       ;

@@ -89,3 +89,13 @@ void EthernetFrameProvider::Send(uint64_t dstMAC_BE, uint16_t etherType_BE, uint
 
   backend->Send(buffer2, size + sizeof(EthernetFrameHeader));
 }
+
+uint32_t EthernetFrameProvider::GetIPAddress()
+{
+  return backend->GetIPAddress();
+}
+
+uint64_t EthernetFrameProvider::GetMACAddress()
+{
+  return backend->GetMACAddress();
+}

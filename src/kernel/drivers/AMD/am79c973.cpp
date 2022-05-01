@@ -9,10 +9,9 @@ using namespace os::driver;
 
 RawDataHandler::RawDataHandler(am79c973 *backend)
 {
-  
+
   this->backend = backend;
   backend->SetHandler(this);
-  
 }
 
 RawDataHandler::~RawDataHandler()
@@ -43,7 +42,7 @@ am79c973::am79c973(PCIDeviceDescriptor *device, InterruptManager *interrupts)
       resetPort(device->portBase + 0x14),
       busControlRegisterDataPort(device->portBase + 0x016)
 {
-  
+
   currentSendBuffer = 0;
   currentRecvBuffer = 0;
 
@@ -107,7 +106,6 @@ am79c973::am79c973(PCIDeviceDescriptor *device, InterruptManager *interrupts)
   registerDataPort.Write((uint32_t)(&initBlock) & 0xFFFF);
   registerAddressPort.Write(2);
   registerDataPort.Write(((uint32_t)(&initBlock) >> 16) & 0xFFFF);
-  
 }
 
 am79c973::~am79c973()
@@ -116,7 +114,7 @@ am79c973::~am79c973()
 
 void am79c973::Activate()
 {
-  printf("Activate AMD am79c973\n");
+  // printf("Activate AMD am79c973\n");
   // enable interrupts
   registerAddressPort.Write(0);
   registerDataPort.Write(0x41);
@@ -139,7 +137,7 @@ int am79c973::Reset()
 
 uint32_t am79c973::HandleInterrupt(uint32_t esp)
 {
-  printf("Interrupt from AMD am79c973\n");
+  // printf("Interrupt from AMD am79c973\n");
 
   registerAddressPort.Write(0);
   uint32_t temp = registerDataPort.Read();
@@ -152,13 +150,13 @@ uint32_t am79c973::HandleInterrupt(uint32_t esp)
     printf("Missed frame\n");
   if ((temp & 0x0800) == 0x0800)
     printf("Memory error\n");
+
   if ((temp & 0x400) == 0x400)
-  {
     Receive();
-  }
+
   if ((temp & 0x200) == 0x0200)
   {
-    printf("Data sent\n");
+    // printf("Data sent\n");
   }
 
   // ACK
@@ -188,6 +186,13 @@ void am79c973::Send(uint8_t *buffer, int size)
     *dst = *src;
   }
 
+  /*
+printf("Send:\n");
+for (int i = 0; i < size; i++)
+      printf("%x ", buffer[i]);
+    printf("\n");
+    */
+
   sendBufferDescr[sendDescriptor].available = 0;
   sendBufferDescr[sendDescriptor].flags2 = 0; // clear error messages
   sendBufferDescr[sendDescriptor].flags = 0x8300F000 | ((uint16_t)((-size) & 0xFFF));
@@ -198,7 +203,7 @@ void am79c973::Send(uint8_t *buffer, int size)
 
 void am79c973::Receive()
 {
-  printf("Data received\n");
+  // printf("Data received\n");
   for (; (recvBufferDescr[currentRecvBuffer].flags & 0x80000000) == 0; currentRecvBuffer = (currentRecvBuffer + 1) % 8)
   {
     if (!(recvBufferDescr[currentRecvBuffer].flags & 0x40000000)                  // check error bit
@@ -209,15 +214,21 @@ void am79c973::Receive()
         size -= 4; // remove checksum
 
       uint8_t *buffer = (uint8_t *)(recvBufferDescr[currentRecvBuffer].address);
-      
+
+      /*
+    size = 64;
+    for (int i = 0; i < size; i++)
+      printf("%x ", buffer[i]);
+    printf("\n");
+    */
+      /*
+      for (int i = 0; i < size; i++)
+        printf("%c ", buffer[i]);
+        */
+
       if (handler != 0)
-      {
         if (handler->OnRawDataReceived(buffer, size))
-        {
           Send(buffer, size);
-        }
-      }
-      
 
       // tell device we are ready with this data
       recvBufferDescr[currentRecvBuffer].flags2 = 0;
@@ -234,4 +245,14 @@ void am79c973::SetHandler(RawDataHandler *handler)
 uint64_t am79c973::GetMACAddress()
 {
   return initBlock.physicalAddress;
+}
+
+void am79c973::SetIPAddress(uint32_t ip)
+{
+  initBlock.logicalAddress = ip;
+}
+
+uint32_t am79c973::GetIPAddress()
+{
+  return initBlock.logicalAddress;
 }
